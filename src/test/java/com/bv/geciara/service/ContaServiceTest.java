@@ -205,4 +205,91 @@ class ContaServiceTest {
         assertEquals(1234, conta.getAgencia());
         assertEquals(new BigDecimal("5000.00"), conta.getSaldo());
     }
+
+    @Test
+    void cadastrar_deveManterStatusInformado_QuandoFornecido() {
+        ContaRequest requestComStatus = ContaRequest.builder()
+                .correntistaId(1L)
+                .numero("456789")
+                .agencia(1234)
+                .tipo(ETipoConta.CORRENTE)
+                .saldo(new BigDecimal("5000.00"))
+                .status(EStatusConta.BLOQUEADA)
+                .build();
+
+        Conta contaComStatus = Conta.builder()
+                .numero("456789")
+                .agencia(1234)
+                .tipo(ETipoConta.CORRENTE)
+                .saldo(new BigDecimal("5000.00"))
+                .status(EStatusConta.BLOQUEADA)
+                .correntista(correntista)
+                .build();
+
+        when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
+        when(contaMapper.toEntity(requestComStatus, correntista)).thenReturn(contaComStatus);
+        when(contaRepository.save(any(Conta.class))).thenReturn(contaComStatus);
+        when(contaMapper.toResponse(contaComStatus)).thenReturn(response);
+
+        contaService.cadastrar(requestComStatus);
+
+        assertEquals(EStatusConta.BLOQUEADA, contaComStatus.getStatus());
+    }
+
+    @Test
+    void atualizar_deveAtualizarMultiplosCampos() {
+        ContaAtualizacaoRequest multiRequest = ContaAtualizacaoRequest.builder()
+                .numero("999999")
+                .agencia(5678)
+                .tipo(ETipoConta.POUPANCA)
+                .saldo(new BigDecimal("10000.00"))
+                .build();
+
+        when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
+        when(contaRepository.save(conta)).thenReturn(conta);
+        when(contaMapper.toResponse(conta)).thenReturn(response);
+
+        ContaResponse resultado = contaService.atualizar(1L, multiRequest);
+
+        assertNotNull(resultado);
+        assertEquals("999999", conta.getNumero());
+        assertEquals(5678, conta.getAgencia());
+        assertEquals(ETipoConta.POUPANCA, conta.getTipo());
+        assertEquals(new BigDecimal("10000.00"), conta.getSaldo());
+        verify(contaRepository).save(conta);
+    }
+
+    @Test
+    void atualizar_deveManterCamposNaoInformados() {
+        ContaAtualizacaoRequest vazioRequest = ContaAtualizacaoRequest.builder()
+                .build();
+
+        when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
+        when(contaRepository.save(conta)).thenReturn(conta);
+        when(contaMapper.toResponse(conta)).thenReturn(response);
+
+        contaService.atualizar(1L, vazioRequest);
+
+        assertEquals("456789", conta.getNumero());
+        assertEquals(1234, conta.getAgencia());
+        assertEquals(ETipoConta.CORRENTE, conta.getTipo());
+        assertEquals(new BigDecimal("5000.00"), conta.getSaldo());
+    }
+
+    @Test
+    void atualizar_deveAtualizarApenasAgencia() {
+        ContaAtualizacaoRequest agenciaRequest = ContaAtualizacaoRequest.builder()
+                .agencia(9999)
+                .build();
+
+        when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
+        when(contaRepository.save(conta)).thenReturn(conta);
+        when(contaMapper.toResponse(conta)).thenReturn(response);
+
+        contaService.atualizar(1L, agenciaRequest);
+
+        assertEquals(9999, conta.getAgencia());
+        assertEquals("456789", conta.getNumero());
+        verify(contaRepository).save(conta);
+    }
 }
