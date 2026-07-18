@@ -1,0 +1,157 @@
+package com.bv.geciara.integration;
+
+import com.bv.geciara.repository.CorrentistaRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+class CorrentistaIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private CorrentistaRepository correntistaRepository;
+
+    @BeforeEach
+    void setUp() {
+        correntistaRepository.deleteAll();
+    }
+
+    @Test
+    void fluxoCompleto_CRUD_Correntista() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Ana Souza",
+                                    "endereco": {
+                                        "logradouro": "Av. Paulista",
+                                        "numero": "1000",
+                                        "bairro": "Bela Vista",
+                                        "cidade": "São Paulo",
+                                        "estado": "SP",
+                                        "cep": "01310100"
+                                    },
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "98765432100"
+                                }
+                                """)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.nomeCompleto", org.hamcrest.Matchers.is("Ana Souza")));
+
+        mockMvc.perform(get("/api/correntistas/98765432100")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nomeCompleto", org.hamcrest.Matchers.is("Ana Souza")))
+                .andExpect(jsonPath("$.numeroIdentificador", org.hamcrest.Matchers.is("98765432100")))
+                .andExpect(jsonPath("$.endereco.logradouro", org.hamcrest.Matchers.is("Av. Paulista")))
+                .andExpect(jsonPath("$.dataCadastro").isNotEmpty());
+
+        mockMvc.perform(put("/api/correntistas/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Ana Souza Santos"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nomeCompleto", org.hamcrest.Matchers.is("Ana Souza Santos")));
+
+        mockMvc.perform(get("/api/correntistas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(1)));
+
+        mockMvc.perform(get("/api/correntistas/completos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(1)));
+
+        mockMvc.perform(delete("/api/correntistas/1"))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/correntistas/98765432100"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deveRejeitarCadastro_ComDadosObrigatoriosFaltando() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "",
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveRejeitarCadastro_ComIdentificadorDuplicado() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Carlos Lima",
+                                    "endereco": {
+                                        "logradouro": "Rua Augusta",
+                                        "numero": "500",
+                                        "bairro": "Consolação",
+                                        "cidade": "São Paulo",
+                                        "estado": "SP",
+                                        "cep": "01305000"
+                                    },
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "11122233344"
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Carlos Eduardo Lima",
+                                    "endereco": {
+                                        "logradouro": "Rua Augusta",
+                                        "numero": "600",
+                                        "bairro": "Consolação",
+                                        "cidade": "São Paulo",
+                                        "estado": "SP",
+                                        "cep": "01305100"
+                                    },
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "11122233344"
+                                }
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.mensagem", org.hamcrest.Matchers.containsString("CPF")));
+    }
+
+    @Test
+    void deveRetornar404_AoBuscarCorrentistaInexistente() throws Exception {
+        mockMvc.perform(get("/api/correntistas/99999999999")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deveRetornar404_AoExcluirCorrentistaInexistente() throws Exception {
+        mockMvc.perform(delete("/api/correntistas/99999"))
+                .andExpect(status().isNotFound());
+    }
+}
