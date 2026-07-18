@@ -72,7 +72,7 @@ A API ficará disponível em: `http://localhost:8080`
 GET http://localhost:8080/api/correntistas
 ```
 
-#### Buscar correntista por identificador (CPF)
+#### Buscar correntista por identificador
 ```bash
 GET http://localhost:8080/api/correntistas/12345678900
 ```
@@ -161,7 +161,7 @@ Acesse: http://localhost:8080/swagger-ui.html
 
 ### Diagramas do Projeto
 
-O arquivo `fluxograma.md` contém 11 diagramas Mermaid com os fluxos completos do projeto (arquitetura, cadastro, atualização, exclusão, tratamento de exceções, sanitização de dados e diagrama de classes).
+O arquivo `fluxograma.md` contém 12 diagramas Mermaid com os fluxos completos do projeto (arquitetura, ciclo de vida, cadastro, atualização, exclusão, tratamento de exceções, sanitização de dados, diagrama de classes e fluxo de DTOs).
 
 Para visualizar os diagramas no IntelliJ IDEA, instale o plugin **Mermaid**:
 
@@ -266,42 +266,103 @@ src/main/resources/
 
 ### Cenários Cobertos
 
-#### Testes Unitários (CorrentistaServiceTest)
-1. Inserção de correntista com dados válidos
-2. Rejeição de cadastro sem dados obrigatórios
-3. Tratamento de identificador duplicado
-4. Edição de dados com sucesso
-5. Bloqueio ao tentar alterar "Data de Cadastro"
-6. Consulta de correntista inexistente
-7. Exclusão de correntista
+#### Testes Unitários (CorrentistaServiceTest) — 18 testes
+1. Listar correntistas com dados
+2. Listar correntistas vazia
+3. Listar completos com dados
+4. Listar completos vazia
+5. Buscar por identificador com sucesso
+6. Buscar por identificador não encontrado
+7. Buscar por identificador com sanitização
+8. Cadastrar com dados válidos
+9. Cadastrar com identificador duplicado
+10. Cadastrar com sanitização do documento
+11. Atualizar com sucesso
+12. Atualizar correntista não encontrado
+13. Atualizar com mesmo identificador (sem duplicidade)
+14. Atualizar com novo identificador duplicado
+15. Atualizar com endereço (sanitização CEP)
+16. Manter dataCadastro ao atualizar
+17. Excluir com sucesso
+18. Excluir correntista não encontrado
 
-#### Testes de Controller (ContaControllerTest)
+#### Testes Unitários (ContaServiceTest) — 12 testes
+1. Cadastrar conta com sucesso
+2. Status padrão ATIVA quando não informado
+3. Manter status informado quando fornecido
+4. Exceção quando correntista não encontrado
+5. Atualizar com sucesso (saldo)
+6. Atualizar múltiplos campos
+7. Atualizar apenas um campo
+8. Manter campos não informados na atualização
+9. Exceção quando conta não encontrada
+10. Encerrar conta (soft delete)
+11. Dados originais mantidos ao encerrar
+12. Exceção quando conta não encontrada no encerramento
+
+#### Testes de Controller (CorrentistaControllerTest) — 10 testes
+1. Listar correntistas (200)
+2. Listar completos (200)
+3. Buscar por identificador (200)
+4. Buscar por identificador não encontrado (404)
+5. Cadastrar com sucesso (201)
+6. Cadastrar dados inválidos (400)
+7. Cadastrar identificador duplicado (409)
+8. Atualizar com sucesso (200)
+9. Atualizar não encontrado (404)
+10. Excluir com sucesso (204)
+
+#### Testes de Controller (ContaControllerTest) — 7 testes
 1. Cadastrar conta com sucesso (201)
-2. Cadastrar conta com correntista inexistente (404)
-3. Cadastrar conta com dados inválidos (400)
+2. Cadastrar com correntista inexistente (404)
+3. Cadastrar com dados inválidos (400)
 4. Atualizar conta com sucesso (200)
 5. Atualizar conta inexistente (404)
 6. Encerrar conta com sucesso (204)
 7. Encerrar conta inexistente (404)
 
-#### Testes Unitários (ContaServiceTest)
-1. Cadastrar conta com dados válidos
-2. Status padrão ATIVA quando não informado
-3. Exceção quando correntista não encontrado
-4. Atualizar conta com sucesso
-5. Exceção quando conta não encontrada na atualização
-6. Encerrar conta (soft delete)
-7. Exceção quando conta não encontrada no encerramento
-8. Dados originais mantidos ao encerrar
+#### Testes de Mapper (CorrentistaMapperTest) — 8 testes
+1. toEntity converte todos os campos
+2. toEntity sanitiza número do identificador
+3. toEntity sanitiza CEP do endereço
+4. toEntity aceita endereço nulo
+5. toResumoResponse converte campos corretos
+6. toResponse converte todos os campos com contas
+7. toResponse retorna lista vazia quando contas null
+8. toResponse retorna lista vazia quando contas vazia
 
-#### Testes de Integração (CorrentistaIntegrationTest)
+#### Testes de Mapper (ContaMapperTest) — 5 testes
+1. toEntity converte todos os campos
+2. toEntity vincula correntista
+3. toEntity aceita status nulo
+4. toResponse converte todos os campos
+5. toResponse extrai correntistaId corretamente
+
+#### Testes de Util (SanitizacaoUtilTest) — 15 testes
+1. sanitizar remove pontos, traços e barras (CPF)
+2. sanitizar remove traços do CEP
+3. sanitizar remove pontos, traços e barras (CNPJ)
+4. sanitizar retorna null para valor null
+5. sanitizar retorna vazio para valor vazio
+6. sanitizar mantém valor já limpo
+7. sanitizar remove espaços
+8. sanitizar remove caracteres especiais
+9. sanitizar mantém apenas alfanuméricos
+10. sanitizar trata RG com pontos
+11. sanitizar trata passaporte
+12. sanitizarDocumento delega para sanitizar
+13. sanitizarDocumento retorna null para null
+14. sanitizarCep delega para sanitizar
+15. sanitizarCep retorna null para null
+
+#### Testes de Integração (CorrentistaIntegrationTest) — 5 testes
 1. Fluxo completo CRUD
 2. Rejeição com dados obrigatórios faltando
 3. Rejeição com identificador duplicado
 4. Busca de correntista inexistente
 5. Exclusão de correntista inexistente
 
-#### Testes de Integração (ContaIntegrationTest)
+#### Testes de Integração (ContaIntegrationTest) — 5 testes
 1. Cadastrar conta com sucesso
 2. Status padrão ATIVA quando não informado
 3. Atualizar conta com sucesso
@@ -353,15 +414,18 @@ Abaixo são descritas algumas:
 ## 6. Evidência da Execução dos Testes
 
 ```
-[INFO] Tests run: 47, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 86, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
-Todos os 47 testes foram executados com sucesso:
+Todos os 86 testes foram executados com sucesso:
 - 1 teste de contexto (GeciaraApplicationTests)
-- 11 testes unitários de service (CorrentistaServiceTest)
-- 8 testes unitários de service (ContaServiceTest)
+- 18 testes unitários de service (CorrentistaServiceTest)
+- 12 testes unitários de service (ContaServiceTest)
 - 10 testes de controller (CorrentistaControllerTest)
 - 7 testes de controller (ContaControllerTest)
+- 8 testes de mapper (CorrentistaMapperTest)
+- 5 testes de mapper (ContaMapperTest)
+- 15 testes de util (SanitizacaoUtilTest)
 - 5 testes de integração (CorrentistaIntegrationTest)
 - 5 testes de integração (ContaIntegrationTest)
