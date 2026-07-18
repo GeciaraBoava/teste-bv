@@ -159,6 +159,20 @@ DELETE http://localhost:8080/api/contas/1
 ### Documentação Swagger/OpenAPI
 Acesse: http://localhost:8080/swagger-ui.html
 
+### Diagramas do Projeto
+
+O arquivo `fluxograma.md` contém 11 diagramas Mermaid com os fluxos completos do projeto (arquitetura, cadastro, atualização, exclusão, tratamento de exceções, sanitização de dados e diagrama de classes).
+
+Para visualizar os diagramas no IntelliJ IDEA, instale o plugin **Mermaid**:
+
+```
+Settings → Plugins → Marketplace → buscar "Mermaid"
+→ Instalar "Mermaid" ou "Markdown Mermaid"
+→ Reiniciar o IntelliJ
+```
+
+Abra `fluxograma.md` e clique no ícone de preview na lateral do editor. Alternativamente, acesse [mermaid.live](https://mermaid.live) para visualização online.
+
 ---
 
 ## 3. Decisões Técnicas
@@ -168,6 +182,7 @@ Acesse: http://localhost:8080/swagger-ui.html
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
+├── fluxograma.md           # Diagramas Mermaid dos fluxos do projeto
 src/main/java/com/bv/geciara/
 ├── config/          # Configurações globais
 │   ├── ApiExceptionHandler.java
@@ -192,8 +207,6 @@ src/main/java/com/bv/geciara/
 │   ├── CorrentistaNaoEncontradoException.java
 │   └── IdentificadorDuplicadoException.java
 ├── mapper/          # Mappers entre DTOs e Entidades
-│   ├── ContaMapper.java
-│   └── CorrentistaMapper.java
 │   ├── ContaMapper.java
 │   └── CorrentistaMapper.java
 ├── model/           # Modelo de domínio
