@@ -1,0 +1,33 @@
+package com.bv.geciara.dto.request;
+
+import com.bv.geciara.model.entities.Endereco;
+import com.bv.geciara.model.enums.ETipoIdentificador;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Schema(description = "Requisição para atualização de correntista. Todos os campos são opcionais — envie apenas o que deseja alterar.")
+public class CorrentistaAtualizacaoRequest {
+
+    @Schema(description = "Nome completo do correntista", example = "Maria Clara Fernandes da Silva")
+    private String nomeCompleto;
+
+    @Schema(description = "Endereço do correntista")
+    private Endereco endereco;
+
+    @Schema(description = "Tipo do documento de identificação", example = "CPF")
+    private ETipoIdentificador tipoIdentificador;
+
+    @Schema(
+            description = "Número do documento de identificação. "
+                    + "Para CPF e RG: somente números (ex: '12345678909'). "
+                    + "Para CNPJ: pode conter letras e números (ex: '12345678000190'). "
+                    + "Para PASSAPORTE: alfanumérico (ex: 'AB1234567').",
+            example = "12345678909")
+    private String numeroIdentificador;
+
+}

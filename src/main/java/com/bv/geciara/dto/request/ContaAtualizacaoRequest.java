@@ -1,0 +1,31 @@
+package com.bv.geciara.dto.request;
+
+import com.bv.geciara.model.enums.ETipoConta;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Schema(description = "Requisição para atualização de conta bancária. Todos os campos são opcionais — envie apenas o que deseja alterar.")
+public class ContaAtualizacaoRequest {
+
+    @Schema(description = "Número da conta", example = "456789")
+    private String numero;
+
+    @Schema(description = "Número da agência", example = "1234")
+    private Integer agencia;
+
+    @Schema(description = "Tipo da conta", example = "CORRENTE")
+    private ETipoConta tipo;
+
+    @Schema(description = "Saldo da conta", example = "5000.00")
+    @Positive(message = "Saldo deve ser positivo")
+    private BigDecimal saldo;
+
+}
