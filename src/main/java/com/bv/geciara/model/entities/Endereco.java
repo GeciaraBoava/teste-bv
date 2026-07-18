@@ -42,4 +42,9 @@ public class Endereco {
     @Size(min = 2, max = 2, message = "Estado deve ter exatamente 2 caracteres")
     @Column(name = "endereco_estado")
     private String estado;
+
+    @NotBlank(message = "CEP é obrigatório")
+    @Pattern(regexp = "\\d{8}", message = "CEP deve conter exatamente 8 dígitos")
+    @Column(name = "endereco_cep")
+    private String cep;
 }
