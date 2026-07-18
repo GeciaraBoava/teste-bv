@@ -1,10 +1,12 @@
 package com.bv.geciara.model.entities;
 
+import com.bv.geciara.model.EntidadeAuditavel;
 import com.bv.geciara.model.enums.ETipoIdentificador;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(
@@ -21,7 +23,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Correntista {
+public class Correntista extends EntidadeAuditavel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +32,9 @@ public class Correntista {
     @Column(name = "nome_completo", nullable = false, length = 150)
     private String nomeCompleto;
 
+    @Embedded
+    private Endereco endereco;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_identificador", nullable = false, length = 20)
     private ETipoIdentificador tipoIdentificador;
@@ -37,16 +42,23 @@ public class Correntista {
     @Column(name = "numero_identificador", nullable = false, length = 20)
     private String numeroIdentificador;
 
-    @Column(name = "data_cadastro", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
+    @OneToMany(
+            mappedBy = "correntista",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<Conta> contas = new ArrayList<>();
 
-    @Column(name = "codigo_banco", nullable = false, length = 10)
-    private String codigoBanco;
+    public void adicionarConta(Conta conta) {
+        contas.add(conta);
+        conta.setCorrentista(this);
+    }
 
-    @Column(nullable = false, length = 10)
-    private String agencia;
-
-    @Column(name = "numero_conta", nullable = false, length = 20)
-    private String numeroConta;
+    public void removerConta(Conta conta) {
+        contas.remove(conta);
+        conta.setCorrentista(null);
+    }
 
 }
