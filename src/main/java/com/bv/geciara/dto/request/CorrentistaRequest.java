@@ -24,7 +24,7 @@ public class CorrentistaRequest {
             regexp = "^[\\p{L}\\s]+$",
             message = "Nome completo deve conter apenas letras e espaços"
     )
-    @Size(max = 150)
+    @Size(max = 150, message = "Tamanho máximo de 150 caracteres excedido")
     private String nomeCompleto;
 
     @Schema(description = "Endereço do correntista")

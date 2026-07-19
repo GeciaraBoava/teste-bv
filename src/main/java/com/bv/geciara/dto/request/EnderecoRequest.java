@@ -20,7 +20,7 @@ public class EnderecoRequest {
             message = "Logradouro deve conter apenas letras e espaços"
     )
     @NotBlank(message = "Logradouro é obrigatório")
-    @Size(max = 150)
+    @Size(max = 150, message = "Tamanho máximo de 150 caracteres excedido")
     private String logradouro;
 
     @Schema(description = "Número", example = "123")
@@ -29,11 +29,11 @@ public class EnderecoRequest {
             regexp = "^[0-9]+$",
             message = "O campo deve conter apenas números"
     )
-    @Size(max = 20)
+    @Size(max = 20, message = "Tamanho máximo de 20 caracteres excedido")
     private String numero;
 
     @Schema(description = "Complemento", example = "Apartamento 101")
-    @Size(max = 100)
+    @Size(max = 100, message = "Tamanho máximo de 100 caracteres excedido")
     private String complemento;
 
     @Schema(description = "Bairro", example = "Centro")
@@ -42,7 +42,7 @@ public class EnderecoRequest {
             message = "Bairro deve conter apenas letras e espaços"
     )
     @NotBlank(message = "Bairro é obrigatório")
-    @Size(max = 100)
+    @Size(max = 100, message = "Tamanho máximo de 100 caracteres excedido")
     private String bairro;
 
     @Schema(description = "Cidade", example = "São Paulo")
@@ -51,7 +51,7 @@ public class EnderecoRequest {
             message = "Cidade deve conter apenas letras e espaços"
     )
     @NotBlank(message = "Cidade é obrigatória")
-    @Size(max = 100)
+    @Size(max = 100, message = "Tamanho máximo de 100 caracteres excedido")
     private String cidade;
 
     @Schema(description = "UF", example = "SP")
@@ -60,7 +60,7 @@ public class EnderecoRequest {
             message = "UF deve conter apenas letras"
     )
     @NotBlank(message = "UF é obrigatória")
-    @Size(min = 2, max = 2)
+    @Size(min = 2, max = 2, message = "Tamanho deve ser de 2 caracteres ")
     private String uf;
 
     @Schema(description = "CEP", example = "01001000")
@@ -69,6 +69,6 @@ public class EnderecoRequest {
             message = "O campo deve conter apenas números"
     )
     @NotBlank(message = "CEP é obrigatório")
-    @Size(min = 8, max = 8)
+    @Size(min = 8, max = 8, message = "Tamanho deve ser de 8 caracteres ")
     private String cep;
 }

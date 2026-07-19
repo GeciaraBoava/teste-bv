@@ -21,7 +21,7 @@ public class ContaRequest {
 
     @Schema(description = "Número da conta (6 dígitos)", example = "456789")
     @NotNull(message = "Número da conta é obrigatório")
-    @Size(min = 1, max = 20)
+    @Size(min = 1, max = 20, message = "Tamanho máximo de 20 caracteres excedido")
     private String numero;
 
     @Schema(description = "Número da agência (4 dígitos)", example = "1234")

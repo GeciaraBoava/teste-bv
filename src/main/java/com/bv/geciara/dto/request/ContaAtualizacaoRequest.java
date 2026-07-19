@@ -3,6 +3,7 @@ package com.bv.geciara.dto.request;
 import com.bv.geciara.model.enums.ETipoConta;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 public class ContaAtualizacaoRequest {
 
     @Schema(description = "Número da conta", example = "456789")
+    @Size(min = 1, max = 20, message = "Tamanho máximo de 20 caracteres excedido")
     private String numero;
 
     @Schema(description = "Número da agência", example = "1234")
