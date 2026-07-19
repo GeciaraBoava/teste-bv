@@ -3,18 +3,24 @@ package com.bv.geciara.config;
 import com.bv.geciara.exception.ContaNaoEncontradaException;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
 import com.bv.geciara.exception.IdentificadorDuplicadoException;
+import com.bv.geciara.exception.IdentificadorInvalidoException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -69,6 +75,53 @@ public class ApiExceptionHandler {
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Erro interno do servidor. Tente novamente mais tarde."
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleNotReadableException(HttpMessageNotReadableException ex) {
+
+        log.error("Erro ao desserializar requisição", ex);
+
+        Throwable causa = ex.getCause();
+
+        if (causa instanceof InvalidFormatException invalidFormatException
+                && invalidFormatException.getTargetType().isEnum()) {
+
+            String campo = invalidFormatException.getPath().stream()
+                    .findFirst()
+                    .map(JsonMappingException.Reference::getFieldName)
+                    .orElse("campo");
+
+            String valoresPermitidos = Arrays.stream(invalidFormatException.getTargetType().getEnumConstants())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+
+            return buildResponse(
+                    HttpStatus.BAD_REQUEST,
+                    String.format(
+                            "O campo '%s' possui um valor inválido. Valores permitidos: %s.",
+                            campo,
+                            valoresPermitidos
+                    )
+            );
+        }
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                "O corpo da requisição está inválido."
+        );
+    }
+
+    @ExceptionHandler(IdentificadorInvalidoException.class)
+    public ResponseEntity<Map<String, Object>> handleIdentificadorInvalido(
+            IdentificadorInvalidoException ex) {
+
+        log.warn(ex.getMessage());
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
         );
     }
 

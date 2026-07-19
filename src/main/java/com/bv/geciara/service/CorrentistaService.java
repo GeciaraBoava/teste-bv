@@ -6,10 +6,11 @@ import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
 import com.bv.geciara.exception.IdentificadorDuplicadoException;
+import com.bv.geciara.exception.IdentificadorInvalidoException;
 import com.bv.geciara.mapper.CorrentistaMapper;
 import com.bv.geciara.model.entities.Correntista;
 import com.bv.geciara.repository.CorrentistaRepository;
-import com.bv.geciara.util.SanitizacaoUtil;
+import com.bv.geciara.util.ValidacaoUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,18 +42,23 @@ public class CorrentistaService {
 
     @Transactional(readOnly = true)
     public CorrentistaResponse buscarPorIdentificador(String numeroIdentificador) {
-        String sanitizado = SanitizacaoUtil.sanitizarDocumento(numeroIdentificador);
-        Correntista correntista = correntistaRepository.findByNumeroIdentificadorComContas(sanitizado)
-                .orElseThrow(() -> new CorrentistaNaoEncontradoException(sanitizado));
+        Correntista correntista = correntistaRepository.findByNumeroIdentificadorComContas(numeroIdentificador)
+                .orElseThrow(() -> new CorrentistaNaoEncontradoException(numeroIdentificador));
         return correntistaMapper.toResponse(correntista);
     }
 
     @Transactional
     public CorrentistaResponse cadastrar(CorrentistaRequest request) {
-        String numeroSanitizado = SanitizacaoUtil.sanitizarDocumento(request.getNumeroIdentificador());
+        if (!ValidacaoUtil.isIdentificadorValid(
+                        request.getTipoIdentificador(),
+                        request.getNumeroIdentificador())) {
+            throw new IdentificadorInvalidoException(
+                    request.getTipoIdentificador().name(),
+                    request.getNumeroIdentificador()
+            );
+        }
 
-        if (correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
-                request.getTipoIdentificador(), numeroSanitizado)) {
+        if (correntistaRepository.existsByNumeroIdentificador(request.getNumeroIdentificador())) {
             throw new IdentificadorDuplicadoException(
                     request.getTipoIdentificador().name(),
                     request.getNumeroIdentificador()
@@ -66,42 +72,32 @@ public class CorrentistaService {
 
     @Transactional
     public CorrentistaResponse atualizar(Long id, CorrentistaAtualizacaoRequest request) {
+
         Correntista correntista = correntistaRepository.findById(id)
                 .orElseThrow(() -> new CorrentistaNaoEncontradoException(id));
 
-        if (request.getNomeCompleto() != null) {
-            correntista.setNomeCompleto(request.getNomeCompleto());
-        }
+        String numeroIdentificadorAtualizado = request.getNumeroIdentificador() != null
+                ? request.getNumeroIdentificador()
+                : null;
 
-        if (request.getEndereco() != null) {
-            if (request.getEndereco().getCep() != null) {
-                request.getEndereco().setCep(SanitizacaoUtil.sanitizarCep(request.getEndereco().getCep()));
+        if (request.getTipoIdentificador() != null && numeroIdentificadorAtualizado != null) {
+
+            boolean mesmoIdentificador =
+                    correntista.getTipoIdentificador() == request.getTipoIdentificador()
+                        && correntista.getNumeroIdentificador().equals(numeroIdentificadorAtualizado);
+
+            if (!mesmoIdentificador
+                    && correntistaRepository.existsByNumeroIdentificador(numeroIdentificadorAtualizado)) {
+                throw new IdentificadorDuplicadoException(
+                        request.getTipoIdentificador().name(),
+                        request.getNumeroIdentificador()
+                );
             }
-            correntista.setEndereco(request.getEndereco());
         }
 
-        if (request.getTipoIdentificador() != null && request.getNumeroIdentificador() != null) {
-            String numeroSanitizado = SanitizacaoUtil.sanitizarDocumento(request.getNumeroIdentificador());
+        correntistaMapper.updateEntity(request, correntista);
 
-            boolean mesmoIdentificador = correntista.getTipoIdentificador() == request.getTipoIdentificador()
-                    && correntista.getNumeroIdentificador().equals(numeroSanitizado);
-
-            if (!mesmoIdentificador) {
-                if (correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
-                        request.getTipoIdentificador(), numeroSanitizado)) {
-                    throw new IdentificadorDuplicadoException(
-                            request.getTipoIdentificador().name(),
-                            request.getNumeroIdentificador()
-                    );
-                }
-            }
-
-            correntista.setTipoIdentificador(request.getTipoIdentificador());
-            correntista.setNumeroIdentificador(numeroSanitizado);
-        }
-
-        Correntista atualizado = correntistaRepository.save(correntista);
-        return correntistaMapper.toResponse(atualizado);
+        return correntistaMapper.toResponse(correntistaRepository.save(correntista));
     }
 
     @Transactional

@@ -13,9 +13,8 @@ import java.util.Optional;
 @Repository
 public interface CorrentistaRepository extends JpaRepository<Correntista, Long> {
 
-    boolean existsByTipoIdentificadorAndNumeroIdentificador(
-            ETipoIdentificador tipoIdentificador,
-            String numeroIdentificador
+    boolean existsByNumeroIdentificador(
+           String numeroIdentificador
     );
 
     @Query("SELECT c FROM Correntista c LEFT JOIN FETCH c.contas WHERE c.numeroIdentificador = :numeroIdentificador")

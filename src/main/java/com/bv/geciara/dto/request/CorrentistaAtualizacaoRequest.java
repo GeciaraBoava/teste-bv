@@ -3,6 +3,8 @@ package com.bv.geciara.dto.request;
 import com.bv.geciara.model.entities.Endereco;
 import com.bv.geciara.model.enums.ETipoIdentificador;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
@@ -14,10 +16,15 @@ import lombok.*;
 public class CorrentistaAtualizacaoRequest {
 
     @Schema(description = "Nome completo do correntista", example = "Maria Clara Fernandes da Silva")
+    @Pattern(
+            regexp = "^[\\p{L}\\s]+$",
+            message = "Nome completo deve conter apenas letras e espaços"
+    )
+    @Size(max = 150)
     private String nomeCompleto;
 
     @Schema(description = "Endereço do correntista")
-    private Endereco endereco;
+    private EnderecoAtualizacaoRequest endereco;
 
     @Schema(description = "Tipo do documento de identificação", example = "CPF")
     private ETipoIdentificador tipoIdentificador;

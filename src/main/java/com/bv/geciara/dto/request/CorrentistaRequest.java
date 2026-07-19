@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -19,13 +20,17 @@ public class CorrentistaRequest {
 
     @Schema(description = "Nome completo do correntista", example = "Maria Clara Fernandes")
     @NotBlank(message = "Nome completo é obrigatório")
+    @Pattern(
+            regexp = "^[\\p{L}\\s]+$",
+            message = "Nome completo deve conter apenas letras e espaços"
+    )
     @Size(max = 150)
     private String nomeCompleto;
 
     @Schema(description = "Endereço do correntista")
     @Valid
     @NotNull(message = "Endereço é obrigatório")
-    private Endereco endereco;
+    private EnderecoRequest endereco;
 
     @Schema(description = "Tipo do documento de identificação", example = "CPF")
     @NotNull(message = "Tipo do identificador é obrigatório")
