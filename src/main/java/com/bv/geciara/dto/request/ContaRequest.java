@@ -32,7 +32,4 @@ public class ContaRequest {
     @NotNull(message = "Tipo da conta é obrigatório")
     private ETipoConta tipo;
 
-    @Schema(description = "Status da conta (padrão: ATIVA)", example = "ATIVA")
-    private EStatusConta status;
-
 }

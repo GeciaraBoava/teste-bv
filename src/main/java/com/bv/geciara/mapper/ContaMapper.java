@@ -4,6 +4,7 @@ import com.bv.geciara.dto.request.ContaRequest;
 import com.bv.geciara.dto.response.ContaResponse;
 import com.bv.geciara.model.entities.Conta;
 import com.bv.geciara.model.entities.Correntista;
+import com.bv.geciara.model.enums.EStatusConta;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public class ContaMapper {
                 .agencia(dto.getAgencia())
                 .tipo(dto.getTipo())
                 .saldo(BigDecimal.ZERO)
-                .status(dto.getStatus())
+                .status(EStatusConta.ATIVA)
                 .correntista(correntista)
                 .build();
     }
