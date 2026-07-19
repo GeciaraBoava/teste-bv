@@ -8,6 +8,10 @@ graph TB
         CLIENT[Cliente HTTP<br/>Postman / Swagger UI / Frontend]
     end
 
+    subgraph "Segurança"
+        SEC[SecurityConfig<br/>HTTP Basic Auth]
+    end
+
     subgraph "Camada de Controller"
         CC[CorrentistaController<br/>/api/correntistas]
         CT[ContaController<br/>/api/contas]
@@ -38,11 +42,12 @@ graph TB
     end
 
     subgraph "Utilitários"
-        SU[SAnitizacaoUtil<br/>Remoção de caracteres especiais]
+        VU[ValidacaoUtil<br/>Validação de identificadores]
     end
 
-    CLIENT --> CC
-    CLIENT --> CT
+    CLIENT -->|HTTP Basic Auth| SEC
+    SEC -->|Autenticado| CC
+    SEC -->|Autenticado| CT
     CC --> BV
     CT --> BV
     BV -->|Válido| CS
@@ -50,7 +55,7 @@ graph TB
     BV -->|Inválido| EXH
     CS --> CM
     CTS --> CTM
-    CS --> SU
+    CS --> VU
     CM --> CR
     CTM --> CTR
     CR --> H2
@@ -72,7 +77,9 @@ graph TB
 
 ```mermaid
 flowchart TD
-    START([Requisição HTTP]) --> VAL{Bean Validation<br/>válido?}
+    START([Requisição HTTP]) --> SEC{Autenticação<br/>válida?}
+    SEC -->|Não| ERR401[401 Unauthorized]
+    SEC -->|Sim| VAL{Bean Validation<br/>válido?}
     VAL -->|Não| EXH[ApiExceptionHandler<br/>monta resposta 400]
     VAL -->|Sim| SVC[Service recebe Request DTO]
 
@@ -85,10 +92,13 @@ flowchart TD
     RSP --> HTTP[Resposta HTTP<br/>201 / 200 / 204]
 
     EXC --> EXH2[ApiExceptionHandler<br/>monta resposta de erro]
-    EXH --> CLIENT[Cliente recebe JSON]
+    ERR401 --> CLIENT[Cliente recebe JSON]
+    EXH --> CLIENT
     EXH2 --> CLIENT
     HTTP --> CLIENT
 
+    style SEC fill:#e7f3ff
+    style ERR401 fill:#f8d7da
     style VAL fill:#fff3cd
     style BIZ fill:#fff3cd
     style EXC fill:#f8d7da
@@ -104,24 +114,26 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([POST /api/correntistas<br/>CorrentistaRequest]) --> VALID{Validação<br/>válida?}
+    START([POST /api/correntistas<br/>CorrentistaRequest]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| VALID{Validação<br/>Bean Validation?}
 
-    VALID -->|Inválido| ERR400[400 Bad Request]
-    VALID -->|Válido| SAN[Sanitiza número e CEP]
+    VALID -->|Inválido| ERR400[400 Bad Request<br/>detalhes dos campos]
+    VALID -->|Válido| DUP{Identificador<br/>já existe?}
 
-    SAN --> DUP{Identificador<br/>já existe?}
-
-    DUP -->|Sim| ERR409[409 Conflict]
-    DUP -->|Não| MAP[Mapper converte<br/>Request → Entity]
+    DUP -->|Sim| ERR409[409 Conflict<br/>CPF/CNPJ duplicado]
+    DUP -->|Não| MAP[CorrentistaMapper.toEntity<br/>converte DTO → Entity]
 
     MAP --> SAVE[Repository.save]
-    SAVE --> RSP[Mapper converte<br/>Entity → Response]
+    SAVE --> RSP[CorrentistaMapper.toResponse<br/>converte Entity → Response]
     RSP --> OK([201 Created])
 
-    ERR400 --> HANDLER[ApiExceptionHandler]
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    ERR400 --> HANDLER
     ERR409 --> HANDLER
     HANDLER --> CLIENT([Cliente recebe erro])
 
+    style ERR401 fill:#f8d7da
     style ERR400 fill:#f8d7da
     style ERR409 fill:#f8d7da
     style OK fill:#d4edda
@@ -133,19 +145,28 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([PUT /api/correntistas/{id}<br/>CorrentistaAtualizacaoRequest]) --> FIND{Correntista<br/>existe?}
+    START([PUT /api/correntistas/{id}<br/>CorrentistaAtualizacaoRequest]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| FIND{Correntista<br/>existe?}
 
     FIND -->|Não| ERR404[404 Not Found]
-    FIND -->|Sim| UPD[Atualiza apenas<br/>campos enviados]
+    FIND -->|Sim| DUP{Novo identificador<br/>duplicado?}
+
+    DUP -->|Sim| ERR409[409 Conflict]
+    DUP -->|Não| UPD[CorrentistaMapper.updateEntity<br/>atualiza apenas campos enviados]
 
     UPD --> SAVE[Repository.save]
-    SAVE --> RSP[Mapper converte<br/>Entity → Response]
+    SAVE --> RSP[CorrentistaMapper.toResponse<br/>converte Entity → Response]
     RSP --> OK([200 OK])
 
-    ERR404 --> HANDLER[ApiExceptionHandler]
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    ERR404 --> HANDLER
+    ERR409 --> HANDLER
     HANDLER --> CLIENT([Cliente recebe erro])
 
+    style ERR401 fill:#f8d7da
     style ERR404 fill:#f8d7da
+    style ERR409 fill:#f8d7da
     style OK fill:#d4edda
 ```
 
@@ -155,16 +176,20 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([DELETE /api/correntistas/{id}]) --> FIND{Correntista<br/>existe?}
+    START([DELETE /api/correntistas/{id}]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| FIND{Correntista<br/>existe?}
 
     FIND -->|Não| ERR404[404 Not Found]
     FIND -->|Sim| DEL[deleteById<br/>cascade remove contas]
 
     DEL --> OK([204 No Content])
 
-    ERR404 --> HANDLER[ApiExceptionHandler]
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    ERR404 --> HANDLER
     HANDLER --> CLIENT([Cliente recebe erro])
 
+    style ERR401 fill:#f8d7da
     style ERR404 fill:#f8d7da
     style OK fill:#d4edda
 ```
@@ -175,27 +200,32 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([POST /api/contas<br/>ContaRequest]) --> VALID{Validação<br/>válida?}
+    START([POST /api/contas<br/>ContaRequest]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| VALID{Validação<br/>Bean Validation?}
 
-    VALID -->|Inválido| ERR400[400 Bad Request]
+    VALID -->|Inválido| ERR400[400 Bad Request<br/>detalhes dos campos]
     VALID -->|Válido| FIND_CORR{Correntista<br/>existe?}
 
     FIND_CORR -->|Não| ERR404[404 Not Found]
-    FIND_CORR -->|Sim| MAP[Mapper converte<br/>Request → Entity]
+    FIND_CORR -->|Sim| MAP[ContaMapper.toEntity<br/>converte DTO → Entity<br/>saldo = ZERO, status = ATIVA]
 
-    MAP --> DEF[Status padrão: ATIVA<br/>se não informado]
-    DEF --> SAVE[Repository.save<br/>cascade vincula ao Correntista]
+    MAP --> VINC[Correntista.adicionarConta<br/>vincula bidirecionalmente]
 
-    SAVE --> RSP[Mapper converte<br/>Entity → Response]
+    VINC --> SAVE[Repository.save<br/>cascade vincula ao Correntista]
+    SAVE --> RSP[ContaMapper.toResponse<br/>converte Entity → Response]
     RSP --> OK([201 Created])
 
-    ERR400 --> HANDLER[ApiExceptionHandler]
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    ERR400 --> HANDLER
     ERR404 --> HANDLER
     HANDLER --> CLIENT([Cliente recebe erro])
 
+    style ERR401 fill:#f8d7da
     style ERR400 fill:#f8d7da
     style ERR404 fill:#f8d7da
     style OK fill:#d4edda
+    style MAP fill:#e7f3ff
 ```
 
 ---
@@ -204,18 +234,22 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([PUT /api/contas/{id}<br/>ContaAtualizacaoRequest]) --> FIND{Conta<br/>existe?}
+    START([PUT /api/contas/{id}<br/>ContaAtualizacaoRequest<br/>todos campos opcionais]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| FIND{Conta<br/>existe?}
 
     FIND -->|Não| ERR404[404 Not Found]
-    FIND -->|Sim| UPD[Atualiza apenas<br/>campos enviados]
+    FIND -->|Sim| UPD[Atualiza apenas<br/>campos enviados não nulos]
 
     UPD --> SAVE[Repository.save]
-    SAVE --> RSP[Mapper converte<br/>Entity → Response]
+    SAVE --> RSP[ContaMapper.toResponse<br/>converte Entity → Response]
     RSP --> OK([200 OK])
 
-    ERR404 --> HANDLER[ApiExceptionHandler]
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    ERR404 --> HANDLER
     HANDLER --> CLIENT([Cliente recebe erro])
 
+    style ERR401 fill:#f8d7da
     style ERR404 fill:#f8d7da
     style OK fill:#d4edda
 ```
@@ -226,7 +260,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([DELETE /api/contas/{id}]) --> FIND{Conta<br/>existe?}
+    START([DELETE /api/contas/{id}]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| FIND{Conta<br/>existe?}
 
     FIND -->|Não| ERR404[404 Not Found]
     FIND -->|Sim| SOFT[status = ENCERRADA<br/>soft delete]
@@ -234,9 +270,11 @@ flowchart TD
     SOFT --> SAVE[Repository.save]
     SAVE --> OK([204 No Content])
 
-    ERR404 --> HANDLER[ApiExceptionHandler]
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    ERR404 --> HANDLER
     HANDLER --> CLIENT([Cliente recebe erro])
 
+    style ERR401 fill:#f8d7da
     style ERR404 fill:#f8d7da
     style OK fill:#d4edda
     style SOFT fill:#fff3cd
@@ -253,15 +291,19 @@ flowchart TD
     TYPE -->|CorrentistaNaoEncontradoException| NF404[404 Not Found]
     TYPE -->|ContaNaoEncontradaException| NF404C[404 Not Found]
     TYPE -->|IdentificadorDuplicadoException| CON409[409 Conflict]
+    TYPE -->|IdentificadorInvalidoException| INV400[400 Bad Request]
     TYPE -->|DataIntegrityViolationException| CON409D[409 Conflict]
-    TYPE -->|MethodArgumentNotValidException| VAL400[400 Bad Request]
+    TYPE -->|MethodArgumentNotValidException| VAL400[400 Bad Request<br/>detalhes por campo]
+    TYPE -->|HttpMessageNotReadableException| MSG400[400 Bad Request<br/>campo inválido/enum]
     TYPE -->|Exception genérica| ERR500[500 Internal Server Error]
 
     NF404 --> RESP[Response JSON:<br/>timestamp, status, erro, mensagem]
     NF404C --> RESP
     CON409 --> RESP
+    INV400 --> RESP
     CON409D --> RESP
     VAL400 --> RESP_V[Response JSON:<br/>timestamp, status, erro, detalhes]
+    MSG400 --> RESP
     ERR500 --> RESP
 
     RESP --> CLIENT([Cliente])
@@ -270,51 +312,92 @@ flowchart TD
     style NF404 fill:#fff3cd
     style NF404C fill:#fff3cd
     style CON409 fill:#f8d7da
+    style INV400 fill:#f8d7da
     style CON409D fill:#f8d7da
     style VAL400 fill:#f8d7da
+    style MSG400 fill:#f8d7da
     style ERR500 fill:#f8d7da
 ```
 
 ---
 
-## 10. Fluxo de Sanitização de Dados
+## 10. Validação de Identificadores (ValidacaoUtil)
 
 ```mermaid
 flowchart LR
-    subgraph "Entrada do Usuário"
-        CPF["CPF: '123.456.789-09'"]
-        CEP["CEP: '01310-100'"]
-        CNPJ["CNPJ: '12.345.678/0001-90'"]
+    subgraph "Entrada"
+        CPF["CPF: '12345678909'"]
+        CNPJ["CNPJ: '12345678000190'"]
+        PASS["Passaporte: 'AB1234567'"]
+        RG["RG: '123456789'"]
     end
 
-    subgraph "SanitizacaoUtil"
-        S1["Regex: [^a-zA-Z0-9]<br/>remove caracteres especiais"]
+    subgraph "ValidacaoUtil.isIdentificadorValid"
+        V1{"Tipo = CPF?<br/>Tamanho = 11?"}
+        V2{"Tipo = CNPJ?<br/>Tamanho = 14?"}
+        V3{"Tipo válido?<br/>Não vazio?"}
     end
 
-    subgraph "Saída Limpa"
-        CPF_OK["'12345678909'"]
-        CEP_OK["'01310100'"]
-        CNPJ_OK["'12345678000190'"]
+    subgraph "Resultado"
+        OK["true → Prossegue<br/>com cadastro"]
+        FAIL["false → IdentificadorInvalidoException<br/>400 Bad Request"]
     end
 
-    CPF -->|sanitizarDocumento| S1
-    CEP -->|sanitizarCep| S1
-    CNPJ -->|sanitizarDocumento| S1
-    S1 --> CPF_OK
-    S1 --> CEP_OK
-    S1 --> CNPJ_OK
+    CPF --> V1
+    CNPJ --> V2
+    PASS --> V3
+    RG --> V3
 
-    CPF_OK --> DB[(Banco H2)]
-    CEP_OK --> DB
-    CNPJ_OK --> DB
+    V1 -->|Sim| OK
+    V1 -->|Não| FAIL
+    V2 -->|Sim| OK
+    V2 -->|Não| FAIL
+    V3 -->|Sim| OK
+    V3 -->|Não| FAIL
 
-    style S1 fill:#e7f3ff
-    style DB fill:#d4edda
+    style OK fill:#d4edda
+    style FAIL fill:#f8d7da
+    style V1 fill:#e7f3ff
+    style V2 fill:#e7f3ff
+    style V3 fill:#e7f3ff
 ```
 
 ---
 
-## 11. Diagrama de Classes (Relacionamentos)
+## 11. Segurança (HTTP Basic Auth)
+
+```mermaid
+flowchart TD
+    START([Requisição HTTP]) --> AUTH{Header<br/>Authorization<br/>presente?}
+
+    AUTH -->|Não| ERR401A[401 Unauthorized<br/>WWW-Authenticate: Basic]
+    AUTH -->|Sim| DECODE[Decodifica<br/>Base64: user:password]
+
+    DECODE --> MATCH{Credenciais<br/>corretas?<br/>admin/admin123}
+
+    MATCH -->|Não| ERR401B[401 Unauthorized]
+    MATCH -->|Sim| PERMIT{Endpoint<br/>permitido sem auth?}
+
+    PERMIT -->|Sim<br/>/swagger-ui/**| PUBLIC[Resposta 200<br/>sem autenticação]
+    PERMIT -->|Não| FORWARD[Encaminha para<br/>Controller]
+
+    FORWARD --> CONT[CorrentistaController<br/>ou ContaController]
+
+    ERR401A --> CLIENT([Cliente recebe erro])
+    ERR401B --> CLIENT
+    PUBLIC --> CLIENT
+    CONT --> CLIENT
+
+    style ERR401A fill:#f8d7da
+    style ERR401B fill:#f8d7da
+    style PERMIT fill:#fff3cd
+    style PUBLIC fill:#d4edda
+    style CONT fill:#d4edda
+```
+
+---
+
+## 12. Diagrama de Classes (Relacionamentos)
 
 ```mermaid
 classDiagram
@@ -324,6 +407,7 @@ classDiagram
         +Endereco endereco
         +ETipoIdentificador tipoIdentificador
         +String numeroIdentificador
+        +List~Conta~ contas
         +LocalDateTime dataCadastro
         +LocalDateTime dataAtualizacao
         +adicionarConta(Conta)
@@ -337,6 +421,7 @@ classDiagram
         +ETipoConta tipo
         +BigDecimal saldo
         +EStatusConta status
+        +Correntista correntista
         +LocalDateTime dataCadastro
         +LocalDateTime dataAtualizacao
     }
@@ -344,9 +429,10 @@ classDiagram
     class Endereco {
         +String logradouro
         +String numero
+        +String complemento
         +String bairro
         +String cidade
-        +String estado
+        +String uf
         +String cep
     }
 
@@ -356,35 +442,78 @@ classDiagram
         +LocalDateTime dataAtualizacao
     }
 
+    class ETipoIdentificador {
+        <<enumeration>>
+        CPF
+        CNPJ
+        PASSAPORTE
+        RG
+    }
+
+    class ETipoConta {
+        <<enumeration>>
+        CORRENTE
+        POUPANCA
+        SALARIO
+    }
+
+    class EStatusConta {
+        <<enumeration>>
+        ATIVA
+        BLOQUEADA
+        ENCERRADA
+    }
+
     Correntista "1" --> "*" Conta : tem muitas
     Correntista *-- "1" Endereco : possui
     Conta --> "1" Correntista : pertence a
     Correntista --|> EntidadeAuditavel : herda
     Conta --|> EntidadeAuditavel : herda
+    Correntista --> ETipoIdentificador : usa
+    Conta --> ETipoConta : usa
+    Conta --> EStatusConta : usa
 ```
 
 ---
 
-## 12. Fluxo de DTOs (Request → Entity → Response)
+## 13. Fluxo de DTOs (Request → Entity → Response)
 
 ```mermaid
 flowchart LR
-    subgraph "Correntista"
-        CR1[CorrentistaRequest] --> CM[CorrentistaMapper]
-        CM --> CE[Correntista Entity]
-        CE --> CM2[CorrentistaMapper]
-        CM2 --> CR2[CorrentistaResponse]
+    subgraph "Correntista - Criação"
+        CR1[CorrentistaRequest<br/>todos campos obrigatórios] --> CM1[CorrentistaMapper.toEntity]
+        CM1 --> CE[Correntista Entity]
     end
 
-    subgraph "Conta"
-        CT1[ContaRequest] --> CTM[ContaMapper]
-        CTM --> CTE[Conta Entity]
-        CTE --> CTM2[ContaMapper]
-        CTM2 --> CT2[ContaResponse]
+    subgraph "Correntista - Atualização"
+        CRU[CorrentistaAtualizacaoRequest<br/>todos campos opcionais] --> CMU[CorrentistaMapper.updateEntity]
+        CMU --> CE
+    end
+
+    subgraph "Correntista - Resposta"
+        CE --> CM2[CorrentistaMapper.toResponse]
+        CM2 --> CR2[CorrentistaResponse<br/>com lista de contas]
+    end
+
+    subgraph "Conta - Criação"
+        CT1[ContaRequest<br/>correntistaId, numero, agencia, tipo] --> CTM1[ContaMapper.toEntity<br/>saldo=ZERO, status=ATIVA]
+        CTM1 --> CTE[Conta Entity]
+    end
+
+    subgraph "Conta - Atualização"
+        CTU[ContaAtualizacaoRequest<br/>todos campos opcionais] --> CTMU[Service atualiza<br/>campos não nulos]
+        CTMU --> CTE
+    end
+
+    subgraph "Conta - Resposta"
+        CTE --> CTM2[ContaMapper.toResponse]
+        CTM2 --> CT2[ContaResponse<br/>com correntistaId]
     end
 
     style CR1 fill:#e7f3ff
+    style CRU fill:#e7f3ff
     style CT1 fill:#e7f3ff
+    style CTU fill:#e7f3ff
     style CE fill:#fff3cd
     style CTE fill:#fff3cd
     style CR2 fill:#d4edda

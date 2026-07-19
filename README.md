@@ -9,6 +9,7 @@ API REST para gerenciamento (CRUD) de dados de correntistas de uma instituição
 - **Correntistas**: CRUD completo (listar, buscar, cadastrar, atualizar, excluir)
 - **Contas**: CRUD completo (cadastrar, atualizar dados, encerrar conta com soft delete)
 - **Relacionamento bidirecional**: Correntista ↔ Conta com cascade delete
+- **Segurança**: HTTP Basic Auth (admin/admin123) em todos os endpoints, exceto Swagger
 
 ### Regras de Negócio
 1. O identificador único (CPF/CNPJ/PASSAPORTE/RG) não pode ser duplicado
@@ -159,7 +160,7 @@ Acesse: http://localhost:8080/swagger-ui.html
 
 ### Diagramas do Projeto
 
-O arquivo `fluxograma.md` contém 12 diagramas Mermaid com os fluxos completos do projeto (arquitetura, ciclo de vida, cadastro, atualização, exclusão, tratamento de exceções, sanitização de dados, diagrama de classes e fluxo de DTOs).
+O arquivo `fluxograma.md` contém 13 diagramas Mermaid com os fluxos completos do projeto (arquitetura, ciclo de vida, cadastro, atualização, exclusão, tratamento de exceções, validação de identificadores, segurança, diagrama de classes e fluxo de DTOs).
 
 Para visualizar os diagramas no IntelliJ IDEA, instale o plugin **Mermaid**:
 
@@ -186,6 +187,7 @@ src/main/java/com/bv/geciara/
 │   ├── ApiExceptionHandler.java
 │   ├── JpaConfig.java
 │   ├── OpenApiConfig.java
+│   ├── SecurityConfig.java
 │   └── TimeZoneConfig.java
 ├── controller/      # Endpoints REST
 │   ├── ContaController.java
@@ -227,7 +229,6 @@ src/main/java/com/bv/geciara/
 │   ├── ContaService.java
 │   └── CorrentistaService.java
 └── util/            # Utilitários
-    ├── SanitizacaoUtil.java
     └── ValidacaoUtil.java
 src/main/resources/
 ├── application.properties
@@ -247,7 +248,8 @@ src/main/resources/
 | **ContaRepository** | Acesso a dados de contas via Spring Data JPA |
 | **CorrentistaMapper** | Converte entre DTOs e entidades de correntista |
 | **ContaMapper** | Converte entre DTOs e entidades de conta |
-| **SanitizacaoUtil** | Remove caracteres especiais de documentos e CEP |
+| **ValidacaoUtil** | Valida formato de identificadores (CPF, CNPJ, Passaporte, RG) |
+| **SecurityConfig** | Configura HTTP Basic Auth e permissões de acesso |
 | **ApiExceptionHandler** | Trata exceções globalmente e retorna respostas padronizadas |
 
 ### Estratégia de Persistência
@@ -259,8 +261,8 @@ src/main/resources/
 ### Estratégia de Validação e Tratamento de Erros
 - **Bean Validation**: `@NotBlank`, `@NotNull`, `@Size` nos DTOs
 - **ControllerAdvice**: `ApiExceptionHandler` centraliza tratamento de exceções
-- **Exceções customizadas**: `CorrentistaNaoEncontradoException`, `ContaNaoEncontradaException`, `IdentificadorDuplicadoException`
-- **Docker**: Perfil isolado com configurações otimizadas para container
+- **Exceções customizadas**: `CorrentistaNaoEncontradoException`, `ContaNaoEncontradaException`, `IdentificadorDuplicadoException`, `IdentificadorInvalidoException`
+- **Segurança**: HTTP Basic Auth configurado em `SecurityConfig`, com permissão exclusiva para Swagger
 
 ---
 

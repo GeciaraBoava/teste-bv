@@ -8,6 +8,13 @@
     { "key": "correntistaId", "value": "" },
     { "key": "contaId", "value": "" }
   ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "admin", "type": "string" },
+      { "key": "password", "value": "admin123", "type": "string" }
+    ]
+  },
   "item": [
     {
       "name": "Correntistas",
@@ -33,7 +40,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nomeCompleto\": \"Maria Clara Fernandes\",\n  \"endereco\": {\n    \"logradouro\": \"Rua Augusta\",\n    \"numero\": \"1578\",\n    \"bairro\": \"Consolação\",\n    \"cidade\": \"São Paulo\",\n    \"uf\": \"SP\",\n    \"cep\": \"01310100\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"12345678909\"\n}"
+              "raw": "{\n  \"nomeCompleto\": \"Maria Clara Fernandes\",\n  \"endereco\": {\n    \"logradouro\": \"Rua Augusta\",\n    \"numero\": \"1578\",\n    \"complemento\": \"Apto 42\",\n    \"bairro\": \"Consolação\",\n    \"cidade\": \"São Paulo\",\n    \"uf\": \"SP\",\n    \"cep\": \"01310100\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"12345678909\"\n}"
             }
           }
         },
@@ -128,6 +135,50 @@
           "request": {
             "method": "DELETE",
             "url": { "raw": "{{baseUrl}}/api/correntistas/{{correntistaId}}", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "{{correntistaId}}"] }
+          }
+        },
+        {
+          "name": "PUT - Atualizar Endereço Parcial",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/{{correntistaId}}", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "{{correntistaId}}"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endereco\": {\n    \"logradouro\": \"Av. Paulista\",\n    \"numero\": \"1000\",\n    \"bairro\": \"Bela Vista\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT - Body Vazio (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/{{correntistaId}}", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "{{correntistaId}}"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
           }
         },
         {
@@ -237,6 +288,28 @@
           "request": {
             "method": "DELETE",
             "url": { "raw": "{{baseUrl}}/api/contas/{{contaId}}", "host": ["{{baseUrl}}"], "path": ["api", "contas", "{{contaId}}"] }
+          }
+        },
+        {
+          "name": "PUT - Body Vazio (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{baseUrl}}/api/contas/{{contaId}}", "host": ["{{baseUrl}}"], "path": ["api", "contas", "{{contaId}}"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
           }
         },
         {
