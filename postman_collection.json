@@ -33,7 +33,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nomeCompleto\": \"Maria Clara Fernandes\",\n  \"endereco\": {\n    \"logradouro\": \"Rua Augusta\",\n    \"numero\": \"1578\",\n    \"bairro\": \"Consolação\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"cep\": \"01310100\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"12345678909\"\n}"
+              "raw": "{\n  \"nomeCompleto\": \"Maria Clara Fernandes\",\n  \"endereco\": {\n    \"logradouro\": \"Rua Augusta\",\n    \"numero\": \"1578\",\n    \"bairro\": \"Consolação\",\n    \"cidade\": \"São Paulo\",\n    \"uf\": \"SP\",\n    \"cep\": \"01310100\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"12345678909\"\n}"
             }
           }
         },
@@ -165,7 +165,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nomeCompleto\": \"\",\n  \"endereco\": {\n    \"logradouro\": \"\",\n    \"numero\": \"\",\n    \"bairro\": \"\",\n    \"cidade\": \"\",\n    \"estado\": \"\",\n    \"cep\": \"\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"\"\n}"
+              "raw": "{\n  \"nomeCompleto\": \"\",\n  \"endereco\": {\n    \"logradouro\": \"\",\n    \"numero\": \"\",\n    \"bairro\": \"\",\n    \"cidade\": \"\",\n    \"uf\": \"\",\n    \"cep\": \"\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"\"\n}"
             }
           }
         }

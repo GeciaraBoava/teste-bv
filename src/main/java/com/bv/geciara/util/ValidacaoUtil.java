@@ -12,7 +12,9 @@ public final class ValidacaoUtil {
             return false;
         }
 
-        if (ETipoIdentificador.CPF.equals(tipo) && identificador.length() != 11) {
+        if (ETipoIdentificador.CPF.equals(tipo)
+                && identificador.length() != 11
+                && identificador.matches("\\d+")) {
             return false;
         } else if (ETipoIdentificador.CNPJ.equals(tipo) && identificador.length() != 14) {
             return false;

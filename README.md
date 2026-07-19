@@ -89,7 +89,7 @@ Content-Type: application/json
         "numero": "123",
         "bairro": "Centro",
         "cidade": "São Paulo",
-        "estado": "SP",
+        "uf": "SP",
         "cep": "01234567"
     },
     "tipoIdentificador": "CPF",
@@ -109,7 +109,7 @@ Content-Type: application/json
         "numero": "1000",
         "bairro": "Bela Vista",
         "cidade": "São Paulo",
-        "estado": "SP",
+        "uf": "SP",
         "cep": "01310100"
     },
     "tipoIdentificador": "CPF",
@@ -133,9 +133,7 @@ Content-Type: application/json
     "correntistaId": 1,
     "numero": "456789",
     "agencia": 1234,
-    "tipo": "CORRENTE",
-    "saldo": 5000.00,
-    "status": "ATIVA"
+    "tipo": "CORRENTE"
 }
 ```
 
@@ -197,7 +195,9 @@ src/main/java/com/bv/geciara/
 │   │   ├── ContaAtualizacaoRequest.java
 │   │   ├── ContaRequest.java
 │   │   ├── CorrentistaAtualizacaoRequest.java
-│   │   └── CorrentistaRequest.java
+│   │   ├── CorrentistaRequest.java
+│   │   ├── EnderecoAtualizacaoRequest.java
+│   │   └── EnderecoRequest.java
 │   └── response/
 │       ├── ContaResponse.java
 │       ├── CorrentistaResumoResponse.java
@@ -205,7 +205,8 @@ src/main/java/com/bv/geciara/
 ├── exception/       # Exceções customizadas
 │   ├── ContaNaoEncontradaException.java
 │   ├── CorrentistaNaoEncontradoException.java
-│   └── IdentificadorDuplicadoException.java
+│   ├── IdentificadorDuplicadoException.java
+│   └── IdentificadorInvalidoException.java
 ├── mapper/          # Mappers entre DTOs e Entidades
 │   ├── ContaMapper.java
 │   └── CorrentistaMapper.java
@@ -226,7 +227,8 @@ src/main/java/com/bv/geciara/
 │   ├── ContaService.java
 │   └── CorrentistaService.java
 └── util/            # Utilitários
-    └── SanitizacaoUtil.java
+    ├── SanitizacaoUtil.java
+    └── ValidacaoUtil.java
 src/main/resources/
 ├── application.properties
 ├── application-docker.properties
@@ -430,3 +432,8 @@ Todos os 86 testes foram executados com sucesso:
 - 15 testes de util (SanitizacaoUtilTest)
 - 5 testes de integração (CorrentistaIntegrationTest)
 - 5 testes de integração (ContaIntegrationTest)
+
+## 7. Implementações futuras
+- Cadastro de documentação completa (RG, CPF/CNPJ, inscrições estadual/municipal)
+- Cadastro de credenciais do usuário (autenticação da conta)
+- Desenvolvimento de frontend

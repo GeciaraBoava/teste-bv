@@ -38,9 +38,9 @@ public class CorrentistaRequest {
 
     @Schema(
             description = "Número do documento de identificação. "
-                    + "Para CPF e RG: somente números (ex: '12345678909'). "
-                    + "Para CNPJ: pode conter letras e números (ex: '12345678000190'). "
-                    + "Para PASSAPORTE: alfanumérico (ex: 'AB1234567'). "
+                    + "Para CPF: numérico, 11 caracteres, sem caracteres especiais (ex: '12345678909'). "
+                    + "Para CNPJ: alfanumérico, 14 caracteres, sem caracteres especiais (ex: '12345678000190'). "
+                    + "Para RG e PASSAPORTE: alfanumérico (ex: 'AB1234567'). "
                     + "Pontos, traços e barras serão removidos automaticamente.",
             example = "12345678909")
     @NotBlank(message = "Número do identificador é obrigatório")
