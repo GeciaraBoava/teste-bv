@@ -135,7 +135,7 @@ class CorrentistaControllerTest {
     @Test
     void cadastrar_deveRetornar409_QuandoIdentificadorDuplicado() throws Exception {
         when(correntistaService.cadastrar(any(CorrentistaRequest.class)))
-                .thenThrow(new IdentificadorDuplicadoException("CPF"));
+                .thenThrow(new IdentificadorDuplicadoException("CPF", "12345678900"));
 
         mockMvc.perform(post("/api/correntistas")
                         .contentType(MediaType.APPLICATION_JSON)

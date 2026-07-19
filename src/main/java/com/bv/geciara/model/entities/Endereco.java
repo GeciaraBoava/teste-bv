@@ -44,7 +44,7 @@ public class Endereco {
     private String estado;
 
     @NotBlank(message = "CEP é obrigatório")
-    @Pattern(regexp = "\\d{8}", message = "CEP deve conter exatamente 8 dígitos")
+    @Pattern(regexp = "[\\d.-]+", message = "CEP deve conter 8 dígitos numéricos")
     @Column(name = "endereco_cep")
     private String cep;
 }

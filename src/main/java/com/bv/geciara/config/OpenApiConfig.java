@@ -23,12 +23,6 @@ public class OpenApiConfig {
                                 - Buscar correntista por identificador (CPF/CNPJ/RG/Passaporte)
                                 - Cadastrar, atualizar e excluir correntistas
                                 - Cadastrar, atualizar e encerrar contas vinculadas a correntistas
-                                
-                                ## Regras de Negócio
-                                - O identificador único (CPF/CNPJ) não pode ser duplicado
-                                - O campo "dataCadastro" é imutável após a criação
-                                - Todos os campos obrigatórios devem ser preenchidos
-                                - CPF/CEP: somente dígitos | CNPJ: alfanumérico
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()

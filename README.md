@@ -391,8 +391,9 @@ src/main/resources/
 - Sugestões de tratamento de exceções para garantir os retornos adequados
 - Verificação de atendimento às exigências do escopo
 - Documentação (anotações Swagger)
-- Revisão do README para cobrir todo o escopo
-- Geração de fluxograma
+- Revisão e atualização do README para cobrir todo o escopo
+- Geração e atualização de fluxograma
+- Geração e atualização de collection para Postman em json
 
 ### Validação das Sugestões
 - Todas as sugestões foram revisadas e adaptadas ao contexto do projeto: api REST de cadastro de correntista

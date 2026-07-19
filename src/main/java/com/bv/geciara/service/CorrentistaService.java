@@ -53,7 +53,10 @@ public class CorrentistaService {
 
         if (correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
                 request.getTipoIdentificador(), numeroSanitizado)) {
-            throw new IdentificadorDuplicadoException(request.getTipoIdentificador().name());
+            throw new IdentificadorDuplicadoException(
+                    request.getTipoIdentificador().name(),
+                    request.getNumeroIdentificador()
+            );
         }
 
         Correntista correntista = correntistaMapper.toEntity(request);
@@ -87,7 +90,9 @@ public class CorrentistaService {
                 if (correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
                         request.getTipoIdentificador(), numeroSanitizado)) {
                     throw new IdentificadorDuplicadoException(
-                            request.getTipoIdentificador().name());
+                            request.getTipoIdentificador().name(),
+                            request.getNumeroIdentificador()
+                    );
                 }
             }
 

@@ -2,7 +2,7 @@ package com.bv.geciara.exception;
 
 public class IdentificadorDuplicadoException extends RuntimeException {
 
-    public IdentificadorDuplicadoException(String tipo) {
-        super("Já existe um correntista cadastrado com este tipo e número de identificador (" + tipo + ")");
+    public IdentificadorDuplicadoException(String tipo, String identificador) {
+        super("Já existe um correntista cadastrado para %s %s".formatted(tipo, identificador));
     }
 }
