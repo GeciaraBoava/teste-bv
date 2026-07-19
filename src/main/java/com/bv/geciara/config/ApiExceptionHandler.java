@@ -6,6 +6,7 @@ import com.bv.geciara.exception.IdentificadorDuplicadoException;
 import com.bv.geciara.exception.IdentificadorInvalidoException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -81,9 +82,17 @@ public class ApiExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleNotReadableException(HttpMessageNotReadableException ex) {
 
-        log.error("Erro ao desserializar requisição", ex);
+        log.warn("Erro ao desserializar requisição", ex);
 
         Throwable causa = ex.getCause();
+
+        if (causa instanceof UnrecognizedPropertyException unrecognizedPropertyException) {
+            return buildResponse(
+                    HttpStatus.BAD_REQUEST,
+                    "O campo '%s' não é permitido na requisição."
+                            .formatted(unrecognizedPropertyException.getPropertyName())
+            );
+        }
 
         if (causa instanceof InvalidFormatException invalidFormatException
                 && invalidFormatException.getTargetType().isEnum()) {
@@ -99,17 +108,14 @@ public class ApiExceptionHandler {
 
             return buildResponse(
                     HttpStatus.BAD_REQUEST,
-                    String.format(
-                            "O campo '%s' possui um valor inválido. Valores permitidos: %s.",
-                            campo,
-                            valoresPermitidos
-                    )
+                    "Valor inválido para o campo '%s'. Valores permitidos: %s."
+                            .formatted(campo, valoresPermitidos)
             );
         }
 
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
-                "O corpo da requisição está inválido."
+                "Corpo da requisição inválido."
         );
     }
 
