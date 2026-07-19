@@ -1,0 +1,312 @@
+{
+  "info": {
+    "name": "Geciara API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "correntistaId", "value": "" },
+    { "key": "contaId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Correntistas",
+      "item": [
+        {
+          "name": "POST - Cadastrar Correntista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Salvar ID', () => {",
+                  "  pm.collectionVariables.set('correntistaId', pm.response.json().id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/correntistas", "host": ["{{baseUrl}}"], "path": ["api", "correntistas"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeCompleto\": \"Maria Clara Fernandes\",\n  \"endereco\": {\n    \"logradouro\": \"Rua Augusta\",\n    \"numero\": \"1578\",\n    \"bairro\": \"Consolação\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"cep\": \"01310100\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"12345678909\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET - Listar Todos (Resumo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('É array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/correntistas", "host": ["{{baseUrl}}"], "path": ["api", "correntistas"] }
+          }
+        },
+        {
+          "name": "GET - Listar Todos (Completos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Contém contas', () => pm.expect(pm.response.json()[0]).to.have.property('contas'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/completos", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "completos"] }
+          }
+        },
+        {
+          "name": "GET - Buscar por Identificador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem contas', () => pm.expect(pm.response.json()).to.have.property('contas'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/12345678909", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "12345678909"] }
+          }
+        },
+        {
+          "name": "PUT - Atualizar Correntista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/{{correntistaId}}", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "{{correntistaId}}"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeCompleto\": \"Maria Clara Fernandes da Silva\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE - Excluir Correntista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/{{correntistaId}}", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "{{correntistaId}}"] }
+          }
+        },
+        {
+          "name": "GET - Correntista Inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/correntistas/00000000000", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "00000000000"] }
+          }
+        },
+        {
+          "name": "POST - Cadastro Dados Inválidos (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/correntistas", "host": ["{{baseUrl}}"], "path": ["api", "correntistas"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeCompleto\": \"\",\n  \"endereco\": {\n    \"logradouro\": \"\",\n    \"numero\": \"\",\n    \"bairro\": \"\",\n    \"cidade\": \"\",\n    \"estado\": \"\",\n    \"cep\": \"\"\n  },\n  \"tipoIdentificador\": \"CPF\",\n  \"numeroIdentificador\": \"\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contas",
+      "item": [
+        {
+          "name": "POST - Cadastrar Conta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Saldo zero', () => pm.expect(pm.response.json().saldo).to.eql(0));",
+                  "pm.test('Salvar ID', () => {",
+                  "  pm.collectionVariables.set('contaId', pm.response.json().id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/contas", "host": ["{{baseUrl}}"], "path": ["api", "contas"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correntistaId\": {{correntistaId}},\n  \"numero\": \"456789\",\n  \"agencia\": 1234,\n  \"tipo\": \"CORRENTE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT - Atualizar Conta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{baseUrl}}/api/contas/{{contaId}}", "host": ["{{baseUrl}}"], "path": ["api", "contas", "{{contaId}}"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saldo\": 7500.00,\n  \"agencia\": 9999\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE - Encerrar Conta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/contas/{{contaId}}", "host": ["{{baseUrl}}"], "path": ["api", "contas", "{{contaId}}"] }
+          }
+        },
+        {
+          "name": "POST - Correntista Inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/contas", "host": ["{{baseUrl}}"], "path": ["api", "contas"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correntistaId\": 99999,\n  \"numero\": \"000000\",\n  \"agencia\": 1234,\n  \"tipo\": \"CORRENTE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST - Dados Inválidos (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/contas", "host": ["{{baseUrl}}"], "path": ["api", "contas"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correntistaId\": null,\n  \"numero\": \"\",\n  \"agencia\": null,\n  \"tipo\": null\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "GET - Actuator Health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('UP', () => pm.expect(pm.response.json().status).to.eql('UP'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
+          }
+        }
+      ]
+    }
+  ]
+}
