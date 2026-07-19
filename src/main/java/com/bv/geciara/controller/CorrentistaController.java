@@ -162,7 +162,7 @@ public class CorrentistaController {
                                                     }
                                                     """)
                             }))
-            @RequestBody CorrentistaAtualizacaoRequest request) {
+            @RequestBody @Valid CorrentistaAtualizacaoRequest request) {
         CorrentistaResponse correntista = correntistaService.atualizar(id, request);
         return ResponseEntity.ok(correntista);
     }

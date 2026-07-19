@@ -179,14 +179,11 @@ class ContaControllerTest {
     }
 
     @Test
-    void atualizar_deveAceitarBodyVazio() throws Exception {
-        when(contaService.atualizar(eq(1L), any(ContaAtualizacaoRequest.class)))
-                .thenReturn(response);
-
+    void atualizar_deveRejeitarBodyVazio() throws Exception {
         mockMvc.perform(put("/api/contas/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

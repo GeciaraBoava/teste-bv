@@ -308,14 +308,11 @@ class CorrentistaControllerTest {
     }
 
     @Test
-    void atualizar_deveAceitarBodyVazio() throws Exception {
-        when(correntistaService.atualizar(eq(1L), any(CorrentistaAtualizacaoRequest.class)))
-                .thenReturn(response);
-
+    void atualizar_deveRejeitarBodyVazio() throws Exception {
         mockMvc.perform(put("/api/correntistas/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

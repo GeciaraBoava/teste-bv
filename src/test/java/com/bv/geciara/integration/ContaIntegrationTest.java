@@ -222,7 +222,7 @@ class ContaIntegrationTest {
     }
 
     @Test
-    void atualizar_deveAceitarBodyVazio() throws Exception {
+    void atualizar_deveRejeitarBodyVazio() throws Exception {
         var contaJson = """
                 {
                     "correntistaId": %d,
@@ -244,9 +244,7 @@ class ContaIntegrationTest {
         mockMvc.perform(put("/api/contas/%d".formatted(contaId))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.numero", is("456789")))
-                .andExpect(jsonPath("$.agencia", is(1234)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

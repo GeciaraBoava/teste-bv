@@ -1,7 +1,7 @@
 package com.bv.geciara.dto.request;
 
-import com.bv.geciara.model.entities.Endereco;
 import com.bv.geciara.model.enums.ETipoIdentificador;
+import com.bv.geciara.util.AtLeastOneNonNullField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -12,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@AtLeastOneNonNullField
 @Schema(description = "Requisição para atualização de correntista. Todos os campos são opcionais — envie apenas o que deseja alterar.")
 public class CorrentistaAtualizacaoRequest {
 

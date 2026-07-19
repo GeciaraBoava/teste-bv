@@ -244,7 +244,7 @@ class CorrentistaIntegrationTest {
     }
 
     @Test
-    void deveRetornar200_AoAtualizarBodyVazio() throws Exception {
+    void deveRejeitarBodyVazio_AoAtualizar() throws Exception {
         var resultado = mockMvc.perform(post("/api/correntistas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -271,6 +271,6 @@ class CorrentistaIntegrationTest {
         mockMvc.perform(put("/api/correntistas/%d".formatted(id))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
     }
 }

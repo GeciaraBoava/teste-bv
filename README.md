@@ -229,6 +229,8 @@ src/main/java/com/bv/geciara/
 │   ├── ContaService.java
 │   └── CorrentistaService.java
 └── util/            # Utilitários
+    ├── AtLeastOneNonNullField.java
+    ├── AtLeastOneNonNullFieldValidator.java
     └── ValidacaoUtil.java
 src/main/resources/
 ├── application.properties
@@ -249,6 +251,7 @@ src/main/resources/
 | **CorrentistaMapper** | Converte entre DTOs e entidades de correntista |
 | **ContaMapper** | Converte entre DTOs e entidades de conta |
 | **ValidacaoUtil** | Valida formato de identificadores (CPF, CNPJ, Passaporte, RG) |
+| **AtLeastOneNonNullField** | Valida que ao menos um campo seja informado em requisições de atualização |
 | **SecurityConfig** | Configura HTTP Basic Auth e permissões de acesso |
 | **ApiExceptionHandler** | Trata exceções globalmente e retorna respostas padronizadas |
 
@@ -316,7 +319,7 @@ src/main/resources/
 11. Cadastrar tipo identificador inválido (400)
 12. Atualizar com sucesso (200)
 13. Atualizar não encontrado (404)
-14. Atualizar body vazio (200)
+14. Atualizar body vazio (400)
 15. Excluir com sucesso (204)
 16. Excluir não encontrado (404)
 
@@ -329,7 +332,7 @@ src/main/resources/
 6. Cadastrar com body vazio (400)
 7. Atualizar conta com sucesso (200)
 8. Atualizar conta inexistente (404)
-9. Atualizar body vazio (200)
+9. Atualizar body vazio (400)
 10. Atualizar campo desconhecido (400)
 11. Encerrar conta com sucesso (204)
 12. Encerrar conta inexistente (404)
@@ -385,7 +388,7 @@ src/main/resources/
 6. Rejeição com tipo identificador inválido
 7. Cadastro com complemento opcional
 8. Atualização de endereço parcial
-9. Atualização com body vazio
+9. Rejeição de body vazio
 
 #### Testes de Integração (ContaIntegrationTest) — 13 testes
 1. Cadastrar conta com sucesso
@@ -396,7 +399,7 @@ src/main/resources/
 6. Tipo inválido (400)
 7. Body vazio (400)
 8. Atualizar conta com sucesso
-9. Atualizar com body vazio
+9. Rejeição de body vazio
 10. Manter campos não informados na atualização
 11. Conta inexistente na atualização (404)
 12. Encerrar conta (soft delete)
