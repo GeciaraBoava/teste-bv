@@ -40,7 +40,6 @@ class ContaMapperTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
                 .build();
 
@@ -50,7 +49,7 @@ class ContaMapperTest {
         assertEquals("456789", entity.getNumero());
         assertEquals(1234, entity.getAgencia());
         assertEquals(ETipoConta.CORRENTE, entity.getTipo());
-        assertEquals(new BigDecimal("5000.00"), entity.getSaldo());
+        assertEquals(BigDecimal.ZERO, entity.getSaldo());
         assertEquals(EStatusConta.ATIVA, entity.getStatus());
         assertEquals(correntista, entity.getCorrentista());
     }
@@ -62,7 +61,6 @@ class ContaMapperTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.POUPANCA)
-                .saldo(new BigDecimal("1000.00"))
                 .status(EStatusConta.ATIVA)
                 .build();
 
@@ -70,6 +68,7 @@ class ContaMapperTest {
 
         assertEquals(correntista.getId(), entity.getCorrentista().getId());
         assertEquals(ETipoConta.POUPANCA, entity.getTipo());
+        assertEquals(BigDecimal.ZERO, entity.getSaldo());
     }
 
     @Test
@@ -79,12 +78,12 @@ class ContaMapperTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
                 .build();
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
         assertNull(entity.getStatus());
+        assertEquals(BigDecimal.ZERO, entity.getSaldo());
     }
 
     @Test

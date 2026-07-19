@@ -4,11 +4,8 @@ import com.bv.geciara.model.enums.EStatusConta;
 import com.bv.geciara.model.enums.ETipoConta;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -34,11 +31,6 @@ public class ContaRequest {
     @Schema(description = "Tipo da conta", example = "CORRENTE")
     @NotNull(message = "Tipo da conta é obrigatório")
     private ETipoConta tipo;
-
-    @Schema(description = "Saldo inicial da conta", example = "5000.00")
-    @NotNull(message = "Saldo é obrigatório")
-    @Positive(message = "Saldo deve ser positivo")
-    private BigDecimal saldo;
 
     @Schema(description = "Status da conta (padrão: ATIVA)", example = "ATIVA")
     private EStatusConta status;

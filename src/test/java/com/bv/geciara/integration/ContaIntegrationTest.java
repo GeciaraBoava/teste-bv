@@ -74,7 +74,6 @@ class ContaIntegrationTest {
                     "numero": "456789",
                     "agencia": 1234,
                     "tipo": "CORRENTE",
-                    "saldo": 5000.00,
                     "status": "ATIVA"
                 }
                 """.formatted(correntistaId);
@@ -94,8 +93,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
-                    "tipo": "CORRENTE",
-                    "saldo": 5000.00
+                    "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
 
@@ -115,7 +113,6 @@ class ContaIntegrationTest {
                     "numero": "456789",
                     "agencia": 1234,
                     "tipo": "CORRENTE",
-                    "saldo": 5000.00,
                     "status": "ATIVA"
                 }
                 """.formatted(correntistaId);
@@ -152,7 +149,6 @@ class ContaIntegrationTest {
                     "numero": "456789",
                     "agencia": 1234,
                     "tipo": "CORRENTE",
-                    "saldo": 5000.00,
                     "status": "ATIVA"
                 }
                 """.formatted(correntistaId);

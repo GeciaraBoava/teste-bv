@@ -61,7 +61,6 @@ class ContaControllerTest {
                                     "numero": "456789",
                                     "agencia": 1234,
                                     "tipo": "CORRENTE",
-                                    "saldo": 5000.00,
                                     "status": "ATIVA"
                                 }
                                 """))
@@ -83,7 +82,6 @@ class ContaControllerTest {
                                     "numero": "456789",
                                     "agencia": 1234,
                                     "tipo": "CORRENTE",
-                                    "saldo": 5000.00,
                                     "status": "ATIVA"
                                 }
                                 """))
@@ -99,8 +97,7 @@ class ContaControllerTest {
                                     "correntistaId": null,
                                     "numero": "",
                                     "agencia": null,
-                                    "tipo": null,
-                                    "saldo": -100
+                                    "tipo": null
                                 }
                                 """))
                 .andExpect(status().isBadRequest());

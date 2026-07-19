@@ -70,7 +70,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
                 .build();
 
@@ -107,7 +106,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
                 .build();
 
         Conta contaSemStatus = Conta.builder()
@@ -137,7 +135,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
                 .build();
 
@@ -213,7 +210,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.BLOQUEADA)
                 .build();
 

@@ -6,6 +6,8 @@ import com.bv.geciara.model.entities.Conta;
 import com.bv.geciara.model.entities.Correntista;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class ContaMapper {
 
@@ -14,7 +16,7 @@ public class ContaMapper {
                 .numero(dto.getNumero())
                 .agencia(dto.getAgencia())
                 .tipo(dto.getTipo())
-                .saldo(dto.getSaldo())
+                .saldo(BigDecimal.ZERO)
                 .status(dto.getStatus())
                 .correntista(correntista)
                 .build();
