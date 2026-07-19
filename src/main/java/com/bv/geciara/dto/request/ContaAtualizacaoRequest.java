@@ -25,7 +25,6 @@ public class ContaAtualizacaoRequest {
     private ETipoConta tipo;
 
     @Schema(description = "Saldo da conta", example = "5000.00")
-    @Positive(message = "Saldo deve ser positivo")
     private BigDecimal saldo;
 
 }
