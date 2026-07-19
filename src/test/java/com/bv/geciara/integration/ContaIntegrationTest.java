@@ -49,7 +49,7 @@ class ContaIntegrationTest {
                         "complemento": "Apto 1",
                         "bairro": "Centro",
                         "cidade": "São Paulo",
-                        "estado": "SP"
+                        "uf": "SP"
                     },
                     "tipoIdentificador": "CPF",
                     "numeroIdentificador": "12345678900"
@@ -73,8 +73,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
-                    "tipo": "CORRENTE",
-                    "status": "ATIVA"
+                    "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
 
@@ -87,7 +86,7 @@ class ContaIntegrationTest {
     }
 
     @Test
-    void cadastrar_deveDefinirStatusPadraoATIVA_QuandoNaoInformado() throws Exception {
+    void cadastrar_deveDefinirStatusPadraoATIVA_QuandoDadosValidos() throws Exception {
         var request = """
                 {
                     "correntistaId": %d,
@@ -112,8 +111,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
-                    "tipo": "CORRENTE",
-                    "status": "ATIVA"
+                    "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
 
@@ -148,8 +146,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
-                    "tipo": "CORRENTE",
-                    "status": "ATIVA"
+                    "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
 

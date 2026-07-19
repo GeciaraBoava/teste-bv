@@ -40,7 +40,6 @@ class ContaMapperTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .status(EStatusConta.ATIVA)
                 .build();
 
         Conta entity = contaMapper.toEntity(request, correntista);
@@ -61,7 +60,6 @@ class ContaMapperTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.POUPANCA)
-                .status(EStatusConta.ATIVA)
                 .build();
 
         Conta entity = contaMapper.toEntity(request, correntista);

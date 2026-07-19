@@ -37,11 +37,11 @@ class CorrentistaIntegrationTest {
                                 {
                                     "nomeCompleto": "Ana Souza",
                                     "endereco": {
-                                        "logradouro": "Av. Paulista",
+                                        "logradouro": "Av Paulista",
                                         "numero": "1000",
                                         "bairro": "Bela Vista",
                                         "cidade": "São Paulo",
-                                        "estado": "SP",
+                                        "uf": "SP",
                                         "cep": "01310100"
                                     },
                                     "tipoIdentificador": "CPF",
@@ -58,7 +58,7 @@ class CorrentistaIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nomeCompleto", org.hamcrest.Matchers.is("Ana Souza")))
                 .andExpect(jsonPath("$.numeroIdentificador", org.hamcrest.Matchers.is("98765432100")))
-                .andExpect(jsonPath("$.endereco.logradouro", org.hamcrest.Matchers.is("Av. Paulista")))
+                .andExpect(jsonPath("$.endereco.logradouro", org.hamcrest.Matchers.is("Av Paulista")))
                 .andExpect(jsonPath("$.dataCadastro").isNotEmpty());
 
         mockMvc.perform(put("/api/correntistas/1")
@@ -112,7 +112,7 @@ class CorrentistaIntegrationTest {
                                         "numero": "500",
                                         "bairro": "Consolação",
                                         "cidade": "São Paulo",
-                                        "estado": "SP",
+                                        "uf": "SP",
                                         "cep": "01305000"
                                     },
                                     "tipoIdentificador": "CPF",
@@ -131,7 +131,7 @@ class CorrentistaIntegrationTest {
                                         "numero": "600",
                                         "bairro": "Consolação",
                                         "cidade": "São Paulo",
-                                        "estado": "SP",
+                                        "uf": "SP",
                                         "cep": "01305100"
                                     },
                                     "tipoIdentificador": "CPF",

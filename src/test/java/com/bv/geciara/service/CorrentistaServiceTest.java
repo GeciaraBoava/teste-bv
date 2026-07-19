@@ -2,6 +2,8 @@ package com.bv.geciara.service;
 
 import com.bv.geciara.dto.request.CorrentistaAtualizacaoRequest;
 import com.bv.geciara.dto.request.CorrentistaRequest;
+import com.bv.geciara.dto.request.EnderecoAtualizacaoRequest;
+import com.bv.geciara.dto.request.EnderecoRequest;
 import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
@@ -44,6 +46,7 @@ class CorrentistaServiceTest {
     private CorrentistaResumoResponse resumoResponse;
     private CorrentistaResponse response;
     private Endereco endereco;
+    private EnderecoRequest enderecoRequest;
 
     @BeforeEach
     void setUp() {
@@ -52,7 +55,7 @@ class CorrentistaServiceTest {
                 .numero("123")
                 .bairro("Centro")
                 .cidade("São Paulo")
-                .estado("SP")
+                .uf("SP")
                 .cep("01234567")
                 .build();
 
@@ -66,7 +69,7 @@ class CorrentistaServiceTest {
 
         request = CorrentistaRequest.builder()
                 .nomeCompleto("Maria Silva")
-                .endereco(endereco)
+                .endereco(enderecoRequest)
                 .tipoIdentificador(ETipoIdentificador.CPF)
                 .numeroIdentificador("12345678900")
                 .build();
@@ -131,8 +134,7 @@ class CorrentistaServiceTest {
 
     @Test
     void cadastrar_deveCadastrarCorrentista_QuandoDadosValidos() {
-        when(correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
-                ETipoIdentificador.CPF, "12345678900")).thenReturn(false);
+        when(correntistaRepository.existsByNumeroIdentificador("12345678900")).thenReturn(false);
         when(correntistaMapper.toEntity(request)).thenReturn(correntista);
         when(correntistaRepository.save(any(Correntista.class))).thenReturn(correntista);
         when(correntistaMapper.toResponse(correntista)).thenReturn(response);
@@ -146,8 +148,7 @@ class CorrentistaServiceTest {
 
     @Test
     void cadastrar_deveLancarExcecao_QuandoIdentificadorDuplicado() {
-        when(correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
-                ETipoIdentificador.CPF, "12345678900")).thenReturn(true);
+        when(correntistaRepository.existsByNumeroIdentificador("12345678900")).thenReturn(true);
 
         IdentificadorDuplicadoException exception = assertThrows(
                 IdentificadorDuplicadoException.class,
@@ -280,12 +281,12 @@ class CorrentistaServiceTest {
 
     @Test
     void atualizar_deveAtualizarEndereco_QuandoInformado() {
-        Endereco novoEndereco = Endereco.builder()
+        EnderecoAtualizacaoRequest novoEndereco = EnderecoAtualizacaoRequest.builder()
                 .logradouro("Av. Paulista")
                 .numero("1000")
                 .bairro("Bela Vista")
                 .cidade("São Paulo")
-                .estado("SP")
+                .uf("SP")
                 .cep("01310100")
                 .build();
 
@@ -312,8 +313,7 @@ class CorrentistaServiceTest {
                 .build();
 
         when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
-        when(correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
-                ETipoIdentificador.CPF, "98765432100")).thenReturn(true);
+        when(correntistaRepository.existsByNumeroIdentificador("98765432100")).thenReturn(true);
 
         IdentificadorDuplicadoException exception = assertThrows(
                 IdentificadorDuplicadoException.class,
@@ -326,7 +326,7 @@ class CorrentistaServiceTest {
     void cadastrar_deveSanitizarAntesDeVerificarDuplicidade() {
         CorrentistaRequest requestFormatado = CorrentistaRequest.builder()
                 .nomeCompleto("Pedro Costa")
-                .endereco(endereco)
+                .endereco(enderecoRequest)
                 .tipoIdentificador(ETipoIdentificador.CPF)
                 .numeroIdentificador("111.222.333-44")
                 .build();
@@ -347,8 +347,7 @@ class CorrentistaServiceTest {
                 .numeroIdentificador("11122233344")
                 .build();
 
-        when(correntistaRepository.existsByTipoIdentificadorAndNumeroIdentificador(
-                ETipoIdentificador.CPF, "11122233344")).thenReturn(false);
+        when(correntistaRepository.existsByNumeroIdentificador("11122233344")).thenReturn(false);
         when(correntistaMapper.toEntity(requestFormatado)).thenReturn(pedro);
         when(correntistaRepository.save(any(Correntista.class))).thenReturn(pedro);
         when(correntistaMapper.toResponse(pedro)).thenReturn(pedroResponse);
@@ -357,7 +356,6 @@ class CorrentistaServiceTest {
 
         assertNotNull(resultado);
         assertEquals("Pedro Costa", resultado.getNomeCompleto());
-        verify(correntistaRepository).existsByTipoIdentificadorAndNumeroIdentificador(
-                ETipoIdentificador.CPF, "11122233344");
+        verify(correntistaRepository).existsByNumeroIdentificador("11122233344");
     }
 }

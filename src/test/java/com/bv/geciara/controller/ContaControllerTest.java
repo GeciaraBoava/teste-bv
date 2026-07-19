@@ -60,8 +60,7 @@ class ContaControllerTest {
                                     "correntistaId": 1,
                                     "numero": "456789",
                                     "agencia": 1234,
-                                    "tipo": "CORRENTE",
-                                    "status": "ATIVA"
+                                    "tipo": "CORRENTE"
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -81,8 +80,7 @@ class ContaControllerTest {
                                     "correntistaId": 99,
                                     "numero": "456789",
                                     "agencia": 1234,
-                                    "tipo": "CORRENTE",
-                                    "status": "ATIVA"
+                                    "tipo": "CORRENTE"
                                 }
                                 """))
                 .andExpect(status().isNotFound());

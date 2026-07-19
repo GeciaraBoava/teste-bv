@@ -70,7 +70,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .status(EStatusConta.ATIVA)
                 .build();
 
         response = ContaResponse.builder()
@@ -135,7 +134,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .status(EStatusConta.ATIVA)
                 .build();
 
         assertThrows(CorrentistaNaoEncontradoException.class,
@@ -210,7 +208,6 @@ class ContaServiceTest {
                 .numero("456789")
                 .agencia(1234)
                 .tipo(ETipoConta.CORRENTE)
-                .status(EStatusConta.BLOQUEADA)
                 .build();
 
         Conta contaComStatus = Conta.builder()

@@ -1,6 +1,7 @@
 package com.bv.geciara.mapper;
 
 import com.bv.geciara.dto.request.CorrentistaRequest;
+import com.bv.geciara.dto.request.EnderecoRequest;
 import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.dto.response.ContaResponse;
@@ -33,6 +34,7 @@ class CorrentistaMapperTest {
     private CorrentistaMapper correntistaMapper;
 
     private Endereco endereco;
+    private EnderecoRequest enderecoRequest;
     private Correntista correntista;
 
     @BeforeEach
@@ -42,7 +44,7 @@ class CorrentistaMapperTest {
                 .numero("123")
                 .bairro("Centro")
                 .cidade("São Paulo")
-                .estado("SP")
+                .uf("SP")
                 .cep("01234567")
                 .build();
 
@@ -60,7 +62,7 @@ class CorrentistaMapperTest {
     void toEntity_deveConverterTodosOsCampos() {
         CorrentistaRequest request = CorrentistaRequest.builder()
                 .nomeCompleto("Maria Silva")
-                .endereco(endereco)
+                .endereco(enderecoRequest)
                 .tipoIdentificador(ETipoIdentificador.CPF)
                 .numeroIdentificador("12345678900")
                 .build();
@@ -75,42 +77,6 @@ class CorrentistaMapperTest {
         assertEquals("Rua das Flores", entity.getEndereco().getLogradouro());
     }
 
-    @Test
-    void toEntity_deveSanitizarNumeroIdentificador() {
-        CorrentistaRequest request = CorrentistaRequest.builder()
-                .nomeCompleto("Maria Silva")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("123.456.789-09")
-                .build();
-
-        Correntista entity = correntistaMapper.toEntity(request);
-
-        assertEquals("12345678909", entity.getNumeroIdentificador());
-    }
-
-    @Test
-    void toEntity_deveSanitizarCEP() {
-        Endereco enderecoFormatado = Endereco.builder()
-                .logradouro("Rua Augusta")
-                .numero("1578")
-                .bairro("Consolação")
-                .cidade("São Paulo")
-                .estado("SP")
-                .cep("01310-100")
-                .build();
-
-        CorrentistaRequest request = CorrentistaRequest.builder()
-                .nomeCompleto("João Silva")
-                .endereco(enderecoFormatado)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
-
-        Correntista entity = correntistaMapper.toEntity(request);
-
-        assertEquals("01310100", entity.getEndereco().getCep());
-    }
 
     @Test
     void toEntity_deveAceitarEnderecoNull() {

@@ -2,10 +2,12 @@ package com.bv.geciara.controller;
 
 import com.bv.geciara.dto.request.CorrentistaAtualizacaoRequest;
 import com.bv.geciara.dto.request.CorrentistaRequest;
+import com.bv.geciara.dto.request.EnderecoRequest;
 import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
 import com.bv.geciara.exception.IdentificadorDuplicadoException;
+import com.bv.geciara.mapper.CorrentistaMapper;
 import com.bv.geciara.model.entities.Endereco;
 import com.bv.geciara.model.enums.ETipoIdentificador;
 import com.bv.geciara.service.CorrentistaService;
@@ -41,18 +43,18 @@ class CorrentistaControllerTest {
 
     @BeforeEach
     void setUp() {
-        Endereco endereco = Endereco.builder()
+        EnderecoRequest enderecoRequest = EnderecoRequest.builder()
                 .logradouro("Rua das Flores")
                 .numero("123")
                 .bairro("Centro")
                 .cidade("São Paulo")
-                .estado("SP")
+                .uf("SP")
                 .cep("01234567")
                 .build();
 
         request = CorrentistaRequest.builder()
                 .nomeCompleto("Maria Silva")
-                .endereco(endereco)
+                .endereco(enderecoRequest)
                 .tipoIdentificador(ETipoIdentificador.CPF)
                 .numeroIdentificador("12345678900")
                 .build();
@@ -62,6 +64,15 @@ class CorrentistaControllerTest {
                 .nomeCompleto("Maria Silva")
                 .tipoIdentificador(ETipoIdentificador.CPF)
                 .numeroIdentificador("12345678900")
+                .build();
+
+        Endereco endereco = Endereco.builder()
+                .logradouro("Rua das Flores")
+                .numero("123")
+                .bairro("Centro")
+                .cidade("São Paulo")
+                .uf("SP")
+                .cep("01234567")
                 .build();
 
         response = CorrentistaResponse.builder()
@@ -121,7 +132,7 @@ class CorrentistaControllerTest {
                                         "numero": "123",
                                         "bairro": "Centro",
                                         "cidade": "São Paulo",
-                                        "estado": "SP",
+                                        "uf": "SP",
                                         "cep": "01234567"
                                     },
                                     "tipoIdentificador": "CPF",
@@ -147,7 +158,7 @@ class CorrentistaControllerTest {
                                         "numero": "123",
                                         "bairro": "Centro",
                                         "cidade": "São Paulo",
-                                        "estado": "SP",
+                                        "uf": "SP",
                                         "cep": "01234567"
                                     },
                                     "tipoIdentificador": "CPF",
