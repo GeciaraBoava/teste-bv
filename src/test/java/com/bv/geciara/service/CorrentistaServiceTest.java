@@ -8,6 +8,7 @@ import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
 import com.bv.geciara.exception.IdentificadorDuplicadoException;
+import com.bv.geciara.exception.IdentificadorInvalidoException;
 import com.bv.geciara.mapper.CorrentistaMapper;
 import com.bv.geciara.model.entities.Correntista;
 import com.bv.geciara.model.entities.Endereco;
@@ -50,6 +51,15 @@ class CorrentistaServiceTest {
 
     @BeforeEach
     void setUp() {
+        enderecoRequest = EnderecoRequest.builder()
+                .logradouro("Rua das Flores")
+                .numero("123")
+                .bairro("Centro")
+                .cidade("São Paulo")
+                .uf("SP")
+                .cep("01234567")
+                .build();
+
         endereco = Endereco.builder()
                 .logradouro("Rua das Flores")
                 .numero("123")
@@ -108,6 +118,39 @@ class CorrentistaServiceTest {
     }
 
     @Test
+    void listarTodos_deveRetornarListaVazia_QuandoNenhumCorrentista() {
+        when(correntistaRepository.findAll()).thenReturn(List.of());
+
+        List<CorrentistaResumoResponse> resultado = correntistaService.listarTodos();
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+    }
+
+    @Test
+    void listarTodosCompletos_deveRetornarListaDeCorrentistasComContas() {
+        when(correntistaRepository.findAllComContas()).thenReturn(List.of(correntista));
+        when(correntistaMapper.toResponse(correntista)).thenReturn(response);
+
+        List<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos();
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("Maria Silva", resultado.get(0).getNomeCompleto());
+        verify(correntistaRepository).findAllComContas();
+    }
+
+    @Test
+    void listarTodosCompletos_deveRetornarListaVazia_QuandoNenhumCorrentista() {
+        when(correntistaRepository.findAllComContas()).thenReturn(List.of());
+
+        List<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos();
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+    }
+
+    @Test
     void buscarPorIdentificador_deveRetornarCorrentista_QuandoEncontrado() {
         when(correntistaRepository.findByNumeroIdentificadorComContas("12345678900"))
                 .thenReturn(Optional.of(correntista));
@@ -158,15 +201,60 @@ class CorrentistaServiceTest {
     }
 
     @Test
+    void cadastrar_deveChamarExistsComIdentificadorDoRequest() {
+        CorrentistaRequest requestFormatado = CorrentistaRequest.builder()
+                .nomeCompleto("Pedro Costa")
+                .endereco(enderecoRequest)
+                .tipoIdentificador(ETipoIdentificador.CPF)
+                .numeroIdentificador("11122233344")
+                .build();
+
+        Correntista pedro = Correntista.builder()
+                .id(2L)
+                .nomeCompleto("Pedro Costa")
+                .endereco(endereco)
+                .tipoIdentificador(ETipoIdentificador.CPF)
+                .numeroIdentificador("11122233344")
+                .build();
+
+        CorrentistaResponse pedroResponse = CorrentistaResponse.builder()
+                .id(2L)
+                .nomeCompleto("Pedro Costa")
+                .endereco(endereco)
+                .tipoIdentificador(ETipoIdentificador.CPF)
+                .numeroIdentificador("11122233344")
+                .build();
+
+        when(correntistaRepository.existsByNumeroIdentificador("11122233344")).thenReturn(false);
+        when(correntistaMapper.toEntity(requestFormatado)).thenReturn(pedro);
+        when(correntistaRepository.save(any(Correntista.class))).thenReturn(pedro);
+        when(correntistaMapper.toResponse(pedro)).thenReturn(pedroResponse);
+
+        CorrentistaResponse resultado = correntistaService.cadastrar(requestFormatado);
+
+        assertNotNull(resultado);
+        assertEquals("Pedro Costa", resultado.getNomeCompleto());
+        verify(correntistaRepository).existsByNumeroIdentificador("11122233344");
+    }
+
+    @Test
     void atualizar_deveAtualizarCorrentista_QuandoDadosValidos() {
+        CorrentistaResponse responseAtualizado = CorrentistaResponse.builder()
+                .id(1L)
+                .nomeCompleto("Maria Silva Santos")
+                .endereco(endereco)
+                .tipoIdentificador(ETipoIdentificador.CPF)
+                .numeroIdentificador("12345678900")
+                .build();
+
         when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
         when(correntistaRepository.save(correntista)).thenReturn(correntista);
-        when(correntistaMapper.toResponse(correntista)).thenReturn(response);
+        when(correntistaMapper.toResponse(correntista)).thenReturn(responseAtualizado);
 
         CorrentistaResponse resultado = correntistaService.atualizar(1L, atualizacaoRequest);
 
         assertNotNull(resultado);
-        assertEquals("Maria Silva Santos", correntista.getNomeCompleto());
+        assertEquals("Maria Silva Santos", resultado.getNomeCompleto());
         verify(correntistaRepository).save(correntista);
     }
 
@@ -199,24 +287,20 @@ class CorrentistaServiceTest {
     }
 
     @Test
-    void excluir_deveExcluirCorrentista_QuandoEncontrado() {
-        when(correntistaRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(correntistaRepository).deleteById(1L);
+    void atualizar_deveLancarExcecao_QuandoNovoIdentificadorDuplicado() {
+        CorrentistaAtualizacaoRequest reqNovoId = CorrentistaAtualizacaoRequest.builder()
+                .tipoIdentificador(ETipoIdentificador.CPF)
+                .numeroIdentificador("98765432100")
+                .build();
 
-        assertDoesNotThrow(() -> correntistaService.excluir(1L));
-        verify(correntistaRepository).deleteById(1L);
-    }
+        when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
+        when(correntistaRepository.existsByNumeroIdentificador("98765432100")).thenReturn(true);
 
-    @Test
-    void excluir_deveLancarExcecao_QuandoNaoEncontrado() {
-        when(correntistaRepository.existsById(99L)).thenReturn(false);
+        IdentificadorDuplicadoException exception = assertThrows(
+                IdentificadorDuplicadoException.class,
+                () -> correntistaService.atualizar(1L, reqNovoId));
 
-        CorrentistaNaoEncontradoException exception = assertThrows(
-                CorrentistaNaoEncontradoException.class,
-                () -> correntistaService.excluir(99L));
-
-        assertTrue(exception.getMessage().contains("99"));
-        verify(correntistaRepository, never()).deleteById(any());
+        assertTrue(exception.getMessage().contains("CPF"));
     }
 
     @Test
@@ -235,127 +319,23 @@ class CorrentistaServiceTest {
     }
 
     @Test
-    void listarTodosCompletos_deveRetornarListaDeCorrentistasComContas() {
-        when(correntistaRepository.findAllComContas()).thenReturn(List.of(correntista));
-        when(correntistaMapper.toResponse(correntista)).thenReturn(response);
+    void excluir_deveExcluirCorrentista_QuandoEncontrado() {
+        when(correntistaRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(correntistaRepository).deleteById(1L);
 
-        List<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos();
-
-        assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Maria Silva", resultado.get(0).getNomeCompleto());
-        verify(correntistaRepository).findAllComContas();
+        assertDoesNotThrow(() -> correntistaService.excluir(1L));
+        verify(correntistaRepository).deleteById(1L);
     }
 
     @Test
-    void listarTodosCompletos_deveRetornarListaVazia_QuandoNenhumCorrentista() {
-        when(correntistaRepository.findAllComContas()).thenReturn(List.of());
+    void excluir_deveLancarExcecao_QuandoNaoEncontrado() {
+        when(correntistaRepository.existsById(99L)).thenReturn(false);
 
-        List<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos();
+        CorrentistaNaoEncontradoException exception = assertThrows(
+                CorrentistaNaoEncontradoException.class,
+                () -> correntistaService.excluir(99L));
 
-        assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
-    }
-
-    @Test
-    void listarTodos_deveRetornarListaVazia_QuandoNenhumCorrentista() {
-        when(correntistaRepository.findAll()).thenReturn(List.of());
-
-        List<CorrentistaResumoResponse> resultado = correntistaService.listarTodos();
-
-        assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
-    }
-
-    @Test
-    void buscarPorIdentificador_deveSanitizarAntesDeBuscar() {
-        when(correntistaRepository.findByNumeroIdentificadorComContas("12345678900"))
-                .thenReturn(Optional.of(correntista));
-        when(correntistaMapper.toResponse(correntista)).thenReturn(response);
-
-        CorrentistaResponse resultado = correntistaService.buscarPorIdentificador("123.456.789-00");
-
-        assertNotNull(resultado);
-        verify(correntistaRepository).findByNumeroIdentificadorComContas("12345678900");
-    }
-
-    @Test
-    void atualizar_deveAtualizarEndereco_QuandoInformado() {
-        EnderecoAtualizacaoRequest novoEndereco = EnderecoAtualizacaoRequest.builder()
-                .logradouro("Av. Paulista")
-                .numero("1000")
-                .bairro("Bela Vista")
-                .cidade("São Paulo")
-                .uf("SP")
-                .cep("01310100")
-                .build();
-
-        CorrentistaAtualizacaoRequest reqComEndereco = CorrentistaAtualizacaoRequest.builder()
-                .endereco(novoEndereco)
-                .build();
-
-        when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
-        when(correntistaRepository.save(correntista)).thenReturn(correntista);
-        when(correntistaMapper.toResponse(correntista)).thenReturn(response);
-
-        correntistaService.atualizar(1L, reqComEndereco);
-
-        assertEquals("Av. Paulista", correntista.getEndereco().getLogradouro());
-        assertEquals("01310100", correntista.getEndereco().getCep());
-        verify(correntistaRepository).save(correntista);
-    }
-
-    @Test
-    void atualizar_deveLancarExcecao_QuandoNovoIdentificadorDuplicado() {
-        CorrentistaAtualizacaoRequest reqNovoId = CorrentistaAtualizacaoRequest.builder()
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("98765432100")
-                .build();
-
-        when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
-        when(correntistaRepository.existsByNumeroIdentificador("98765432100")).thenReturn(true);
-
-        IdentificadorDuplicadoException exception = assertThrows(
-                IdentificadorDuplicadoException.class,
-                () -> correntistaService.atualizar(1L, reqNovoId));
-
-        assertTrue(exception.getMessage().contains("CPF"));
-    }
-
-    @Test
-    void cadastrar_deveSanitizarAntesDeVerificarDuplicidade() {
-        CorrentistaRequest requestFormatado = CorrentistaRequest.builder()
-                .nomeCompleto("Pedro Costa")
-                .endereco(enderecoRequest)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("111.222.333-44")
-                .build();
-
-        Correntista pedro = Correntista.builder()
-                .id(2L)
-                .nomeCompleto("Pedro Costa")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("11122233344")
-                .build();
-
-        CorrentistaResponse pedroResponse = CorrentistaResponse.builder()
-                .id(2L)
-                .nomeCompleto("Pedro Costa")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("11122233344")
-                .build();
-
-        when(correntistaRepository.existsByNumeroIdentificador("11122233344")).thenReturn(false);
-        when(correntistaMapper.toEntity(requestFormatado)).thenReturn(pedro);
-        when(correntistaRepository.save(any(Correntista.class))).thenReturn(pedro);
-        when(correntistaMapper.toResponse(pedro)).thenReturn(pedroResponse);
-
-        CorrentistaResponse resultado = correntistaService.cadastrar(requestFormatado);
-
-        assertNotNull(resultado);
-        assertEquals("Pedro Costa", resultado.getNomeCompleto());
-        verify(correntistaRepository).existsByNumeroIdentificador("11122233344");
+        assertTrue(exception.getMessage().contains("99"));
+        verify(correntistaRepository, never()).deleteById(any());
     }
 }

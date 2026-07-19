@@ -7,13 +7,13 @@ import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
 import com.bv.geciara.exception.IdentificadorDuplicadoException;
-import com.bv.geciara.mapper.CorrentistaMapper;
 import com.bv.geciara.model.entities.Endereco;
 import com.bv.geciara.model.enums.ETipoIdentificador;
 import com.bv.geciara.service.CorrentistaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CorrentistaController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class CorrentistaControllerTest {
 
     @Autowired
@@ -96,6 +97,27 @@ class CorrentistaControllerTest {
     }
 
     @Test
+    void listarTodos_deveRetornarListaVazia() throws Exception {
+        when(correntistaService.listarTodos()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void listarTodosCompletos_deveRetornarListaComSucesso() throws Exception {
+        when(correntistaService.listarTodosCompletos()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/correntistas/completos")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].endereco.logradouro", is("Rua das Flores")));
+    }
+
+    @Test
     void buscarPorIdentificador_deveRetornarCorrentistaComSucesso() throws Exception {
         when(correntistaService.buscarPorIdentificador("12345678900")).thenReturn(response);
 
@@ -140,7 +162,8 @@ class CorrentistaControllerTest {
                                 }
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.nomeCompleto", is("Maria Silva")));
+                .andExpect(jsonPath("$.nomeCompleto", is("Maria Silva")))
+                .andExpect(jsonPath("$.id", is(1)));
     }
 
     @Test
@@ -179,13 +202,74 @@ class CorrentistaControllerTest {
                                     "endereco": {
                                         "logradouro": "",
                                         "numero": "",
-                                        "bairro": "Centro",
+                                        "bairro": "",
                                         "cidade": "",
-                                        "estado": "",
+                                        "uf": "",
                                         "cep": ""
                                     },
                                     "tipoIdentificador": "CPF",
                                     "numeroIdentificador": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro", is("Erro de validação")))
+                .andExpect(jsonPath("$.detalhes").isMap());
+    }
+
+    @Test
+    void cadastrar_deveRetornar400_QuandoEnderecoNulo() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Maria Silva",
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "12345678900"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void cadastrar_deveRetornar400_QuandoCampoDesconhecido() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Maria Silva",
+                                    "endereco": {
+                                        "logradouro": "Rua das Flores",
+                                        "numero": "123",
+                                        "bairro": "Centro",
+                                        "cidade": "São Paulo",
+                                        "uf": "SP",
+                                        "cep": "01234567"
+                                    },
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "12345678900",
+                                    "campoInvalido": "valor"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void cadastrar_deveRetornar400_QuandoTipoIdentificadorInvalido() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Maria Silva",
+                                    "endereco": {
+                                        "logradouro": "Rua das Flores",
+                                        "numero": "123",
+                                        "bairro": "Centro",
+                                        "cidade": "São Paulo",
+                                        "uf": "SP",
+                                        "cep": "01234567"
+                                    },
+                                    "tipoIdentificador": "INVALIDO",
+                                    "numeroIdentificador": "12345678900"
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
@@ -219,7 +303,19 @@ class CorrentistaControllerTest {
                                     "nomeCompleto": "Maria Silva Santos"
                                 }
                                 """))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensagem", containsString("99")));
+    }
+
+    @Test
+    void atualizar_deveAceitarBodyVazio() throws Exception {
+        when(correntistaService.atualizar(eq(1L), any(CorrentistaAtualizacaoRequest.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/api/correntistas/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -238,6 +334,7 @@ class CorrentistaControllerTest {
 
         mockMvc.perform(delete("/api/correntistas/99")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensagem", containsString("99")));
     }
 }

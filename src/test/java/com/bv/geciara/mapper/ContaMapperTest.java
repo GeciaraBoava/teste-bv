@@ -70,7 +70,7 @@ class ContaMapperTest {
     }
 
     @Test
-    void toEntity_deveAceitarStatusNulo() {
+    void toEntity_deveDefinirStatusPadraoATIVA() {
         ContaRequest request = ContaRequest.builder()
                 .correntistaId(1L)
                 .numero("456789")
@@ -80,7 +80,21 @@ class ContaMapperTest {
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
-        assertNull(entity.getStatus());
+        assertEquals(EStatusConta.ATIVA, entity.getStatus());
+        assertEquals(BigDecimal.ZERO, entity.getSaldo());
+    }
+
+    @Test
+    void toEntity_deveDefinirSaldoZero() {
+        ContaRequest request = ContaRequest.builder()
+                .correntistaId(1L)
+                .numero("456789")
+                .agencia(1234)
+                .tipo(ETipoConta.POUPANCA)
+                .build();
+
+        Conta entity = contaMapper.toEntity(request, correntista);
+
         assertEquals(BigDecimal.ZERO, entity.getSaldo());
     }
 

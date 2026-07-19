@@ -1,10 +1,13 @@
 package com.bv.geciara.mapper;
 
+import com.bv.geciara.dto.request.CorrentistaAtualizacaoRequest;
 import com.bv.geciara.dto.request.CorrentistaRequest;
+import com.bv.geciara.dto.request.EnderecoAtualizacaoRequest;
 import com.bv.geciara.dto.request.EnderecoRequest;
 import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.dto.response.ContaResponse;
+import com.bv.geciara.exception.IdentificadorInvalidoException;
 import com.bv.geciara.model.entities.Correntista;
 import com.bv.geciara.model.entities.Endereco;
 import com.bv.geciara.model.enums.EStatusConta;
@@ -23,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CorrentistaMapperTest {
@@ -39,9 +44,20 @@ class CorrentistaMapperTest {
 
     @BeforeEach
     void setUp() {
+        enderecoRequest = EnderecoRequest.builder()
+                .logradouro("Rua das Flores")
+                .numero("123")
+                .complemento("Apto 1")
+                .bairro("Centro")
+                .cidade("São Paulo")
+                .uf("SP")
+                .cep("01234567")
+                .build();
+
         endereco = Endereco.builder()
                 .logradouro("Rua das Flores")
                 .numero("123")
+                .complemento("Apto 1")
                 .bairro("Centro")
                 .cidade("São Paulo")
                 .uf("SP")
@@ -75,8 +91,13 @@ class CorrentistaMapperTest {
         assertEquals("12345678900", entity.getNumeroIdentificador());
         assertNotNull(entity.getEndereco());
         assertEquals("Rua das Flores", entity.getEndereco().getLogradouro());
+        assertEquals("123", entity.getEndereco().getNumero());
+        assertEquals("Apto 1", entity.getEndereco().getComplemento());
+        assertEquals("Centro", entity.getEndereco().getBairro());
+        assertEquals("São Paulo", entity.getEndereco().getCidade());
+        assertEquals("SP", entity.getEndereco().getUf());
+        assertEquals("01234567", entity.getEndereco().getCep());
     }
-
 
     @Test
     void toEntity_deveAceitarEnderecoNull() {
@@ -90,6 +111,7 @@ class CorrentistaMapperTest {
         Correntista entity = correntistaMapper.toEntity(request);
 
         assertNotNull(entity);
+        assertEquals("Maria Silva", entity.getNomeCompleto());
         assertNull(entity.getEndereco());
     }
 
@@ -128,8 +150,7 @@ class CorrentistaMapperTest {
                         .build()
         )));
 
-        org.mockito.Mockito.when(contaMapper.toResponse(
-                org.mockito.ArgumentMatchers.any(com.bv.geciara.model.entities.Conta.class)))
+        when(contaMapper.toResponse(any(com.bv.geciara.model.entities.Conta.class)))
                 .thenReturn(contaResponse);
 
         CorrentistaResponse response = correntistaMapper.toResponse(correntista);
@@ -164,5 +185,94 @@ class CorrentistaMapperTest {
 
         assertNotNull(response.getContas());
         assertTrue(response.getContas().isEmpty());
+    }
+
+    @Test
+    void updateEntity_deveAtualizarApenasNomeCompleto() {
+        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
+                .nomeCompleto("Maria Silva Santos")
+                .build();
+
+        correntistaMapper.updateEntity(dto, correntista);
+
+        assertEquals("Maria Silva Santos", correntista.getNomeCompleto());
+        assertEquals(ETipoIdentificador.CPF, correntista.getTipoIdentificador());
+        assertEquals("12345678900", correntista.getNumeroIdentificador());
+    }
+
+    @Test
+    void updateEntity_deveAtualizarEnderecoParcial() {
+        EnderecoAtualizacaoRequest novoEndereco = EnderecoAtualizacaoRequest.builder()
+                .logradouro("Av. Paulista")
+                .build();
+
+        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
+                .endereco(novoEndereco)
+                .build();
+
+        correntistaMapper.updateEntity(dto, correntista);
+
+        assertEquals("Av. Paulista", correntista.getEndereco().getLogradouro());
+        assertEquals("123", correntista.getEndereco().getNumero());
+        assertEquals("Centro", correntista.getEndereco().getBairro());
+    }
+
+    @Test
+    void updateEntity_deveCriarEndereco_QuandoNaoExistir() {
+        correntista.setEndereco(null);
+
+        EnderecoAtualizacaoRequest novoEndereco = EnderecoAtualizacaoRequest.builder()
+                .logradouro("Av. Paulista")
+                .numero("1000")
+                .uf("SP")
+                .cep("01310100")
+                .build();
+
+        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
+                .endereco(novoEndereco)
+                .build();
+
+        correntistaMapper.updateEntity(dto, correntista);
+
+        assertNotNull(correntista.getEndereco());
+        assertEquals("Av. Paulista", correntista.getEndereco().getLogradouro());
+        assertEquals("1000", correntista.getEndereco().getNumero());
+    }
+
+    @Test
+    void updateEntity_deveAtualizarIdentificador() {
+        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
+                .tipoIdentificador(ETipoIdentificador.CNPJ)
+                .numeroIdentificador("12345678000190")
+                .build();
+
+        correntistaMapper.updateEntity(dto, correntista);
+
+        assertEquals(ETipoIdentificador.CNPJ, correntista.getTipoIdentificador());
+        assertEquals("12345678000190", correntista.getNumeroIdentificador());
+    }
+
+    @Test
+    void updateEntity_deveLancarExcecao_QuandoIdentificadorInvalido() {
+        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
+                .tipoIdentificador(ETipoIdentificador.CPF)
+                .numeroIdentificador("123")
+                .build();
+
+        assertThrows(IdentificadorInvalidoException.class,
+                () -> correntistaMapper.updateEntity(dto, correntista));
+    }
+
+    @Test
+    void updateEntity_deveManterCamposNaoInformados() {
+        String nomeOriginal = correntista.getNomeCompleto();
+        String idOriginal = correntista.getNumeroIdentificador();
+
+        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder().build();
+
+        correntistaMapper.updateEntity(dto, correntista);
+
+        assertEquals(nomeOriginal, correntista.getNomeCompleto());
+        assertEquals(idOriginal, correntista.getNumeroIdentificador());
     }
 }

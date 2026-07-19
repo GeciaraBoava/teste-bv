@@ -268,25 +268,23 @@ src/main/resources/
 
 ### Cenários Cobertos
 
-#### Testes Unitários (CorrentistaServiceTest) — 18 testes
+#### Testes Unitários (CorrentistaServiceTest) — 16 testes
 1. Listar correntistas com dados
 2. Listar correntistas vazia
 3. Listar completos com dados
 4. Listar completos vazia
 5. Buscar por identificador com sucesso
 6. Buscar por identificador não encontrado
-7. Buscar por identificador com sanitização
-8. Cadastrar com dados válidos
-9. Cadastrar com identificador duplicado
-10. Cadastrar com sanitização do documento
-11. Atualizar com sucesso
-12. Atualizar correntista não encontrado
-13. Atualizar com mesmo identificador (sem duplicidade)
-14. Atualizar com novo identificador duplicado
-15. Atualizar com endereço (sanitização CEP)
-16. Manter dataCadastro ao atualizar
-17. Excluir com sucesso
-18. Excluir correntista não encontrado
+7. Cadastrar com dados válidos
+8. Cadastrar com identificador duplicado
+9. Cadastrar chama exists com identificador do request
+10. Atualizar com sucesso
+11. Atualizar correntista não encontrado
+12. Atualizar com mesmo identificador (sem duplicidade)
+13. Atualizar com novo identificador duplicado
+14. Manter dataCadastro ao atualizar
+15. Excluir com sucesso
+16. Excluir correntista não encontrado
 
 #### Testes Unitários (ContaServiceTest) — 12 testes
 1. Cadastrar conta com sucesso
@@ -302,74 +300,105 @@ src/main/resources/
 11. Dados originais mantidos ao encerrar
 12. Exceção quando conta não encontrada no encerramento
 
-#### Testes de Controller (CorrentistaControllerTest) — 10 testes
+#### Testes de Controller (CorrentistaControllerTest) — 16 testes
 1. Listar correntistas (200)
-2. Listar completos (200)
-3. Buscar por identificador (200)
-4. Buscar por identificador não encontrado (404)
-5. Cadastrar com sucesso (201)
-6. Cadastrar dados inválidos (400)
+2. Listar correntistas vazia (200)
+3. Listar completos (200)
+4. Buscar por identificador (200)
+5. Buscar por identificador não encontrado (404)
+6. Cadastrar com sucesso (201)
 7. Cadastrar identificador duplicado (409)
-8. Atualizar com sucesso (200)
-9. Atualizar não encontrado (404)
-10. Excluir com sucesso (204)
+8. Cadastrar dados inválidos (400) — com validação de detalhes
+9. Cadastrar endereço nulo (400)
+10. Cadastrar campo desconhecido (400)
+11. Cadastrar tipo identificador inválido (400)
+12. Atualizar com sucesso (200)
+13. Atualizar não encontrado (404)
+14. Atualizar body vazio (200)
+15. Excluir com sucesso (204)
+16. Excluir não encontrado (404)
 
-#### Testes de Controller (ContaControllerTest) — 7 testes
+#### Testes de Controller (ContaControllerTest) — 11 testes
 1. Cadastrar conta com sucesso (201)
 2. Cadastrar com correntista inexistente (404)
-3. Cadastrar com dados inválidos (400)
-4. Atualizar conta com sucesso (200)
-5. Atualizar conta inexistente (404)
-6. Encerrar conta com sucesso (204)
-7. Encerrar conta inexistente (404)
+3. Cadastrar com dados inválidos (400) — com validação de detalhes
+4. Cadastrar com tipo inválido (400)
+5. Cadastrar com campo desconhecido (400)
+6. Cadastrar com body vazio (400)
+7. Atualizar conta com sucesso (200)
+8. Atualizar conta inexistente (404)
+9. Atualizar body vazio (200)
+10. Atualizar campo desconhecido (400)
+11. Encerrar conta com sucesso (204)
+12. Encerrar conta inexistente (404)
 
-#### Testes de Mapper (CorrentistaMapperTest) — 8 testes
-1. toEntity converte todos os campos
-2. toEntity sanitiza número do identificador
-3. toEntity sanitiza CEP do endereço
-4. toEntity aceita endereço nulo
-5. toResumoResponse converte campos corretos
-6. toResponse converte todos os campos com contas
-7. toResponse retorna lista vazia quando contas null
-8. toResponse retorna lista vazia quando contas vazia
+#### Testes de Mapper (CorrentistaMapperTest) — 12 testes
+1. toEntity converte todos os campos (incluindo complemento)
+2. toEntity aceita endereço nulo
+3. toResumoResponse converte campos corretos
+4. toResponse converte todos os campos com contas
+5. toResponse retorna lista vazia quando contas null
+6. toResponse retorna lista vazia quando contas vazia
+7. updateEntity atualiza apenas nome
+8. updateEntity atualiza endereço parcial
+9. updateEntity cria endereço quando não existe
+10. updateEntity atualiza identificador
+11. updateEntity lança exceção para identificador inválido
+12. updateEntity mantém campos não informados
 
-#### Testes de Mapper (ContaMapperTest) — 5 testes
+#### Testes de Mapper (ContaMapperTest) — 6 testes
 1. toEntity converte todos os campos
 2. toEntity vincula correntista
-3. toEntity aceita status nulo
-4. toResponse converte todos os campos
-5. toResponse extrai correntistaId corretamente
+3. toEntity define status padrão ATIVA
+4. toEntity define saldo zero
+5. toResponse converte todos os campos
+6. toResponse extrai correntistaId corretamente
 
-#### Testes de Util (SanitizacaoUtilTest) — 15 testes
-1. sanitizar remove pontos, traços e barras (CPF)
-2. sanitizar remove traços do CEP
-3. sanitizar remove pontos, traços e barras (CNPJ)
-4. sanitizar retorna null para valor null
-5. sanitizar retorna vazio para valor vazio
-6. sanitizar mantém valor já limpo
-7. sanitizar remove espaços
-8. sanitizar remove caracteres especiais
-9. sanitizar mantém apenas alfanuméricos
-10. sanitizar trata RG com pontos
-11. sanitizar trata passaporte
-12. sanitizarDocumento delega para sanitizar
-13. sanitizarDocumento retorna null para null
-14. sanitizarCep delega para sanitizar
-15. sanitizarCep retorna null para null
+#### Testes de Validação (ValidacaoUtilTest) — 12 testes
+1. CPF válido
+2. CPF com tamanho inválido
+3. CPF com letras
+4. Null, vazio e espaços (parameterized)
+5. Tipo nulo
+6. CNPJ válido
+7. CNPJ com tamanho inválido
+8. Passaporte válido
+9. RG válido
 
-#### Testes de Integração (CorrentistaIntegrationTest) — 5 testes
+#### Testes de Segurança (SecurityIntegrationTest) — 7 testes
+1. Rejeita GET sem autenticacao (401)
+2. Rejeita credenciais invalidas (401)
+3. Rejeita credenciais vazias (401)
+4. Aceita credenciais validas (200)
+5. Rejeita POST sem autenticacao (401)
+6. Aceita actuator health com autenticacao (200)
+7. Rejeita POST contas sem autenticacao (401)
+
+#### Testes de Integração (CorrentistaIntegrationTest) — 9 testes
 1. Fluxo completo CRUD
 2. Rejeição com dados obrigatórios faltando
 3. Rejeição com identificador duplicado
 4. Busca de correntista inexistente
 5. Exclusão de correntista inexistente
+6. Rejeição com tipo identificador inválido
+7. Cadastro com complemento opcional
+8. Atualização de endereço parcial
+9. Atualização com body vazio
 
-#### Testes de Integração (ContaIntegrationTest) — 5 testes
+#### Testes de Integração (ContaIntegrationTest) — 13 testes
 1. Cadastrar conta com sucesso
 2. Status padrão ATIVA quando não informado
-3. Atualizar conta com sucesso
-4. Encerrar conta (soft delete)
-5. Encerrar conta inexistente (404)
+3. Saldo inicializado em zero
+4. Correntista inexistente (404)
+5. Dados inválidos (400)
+6. Tipo inválido (400)
+7. Body vazio (400)
+8. Atualizar conta com sucesso
+9. Atualizar com body vazio
+10. Manter campos não informados na atualização
+11. Conta inexistente na atualização (404)
+12. Encerrar conta (soft delete)
+13. Encerrar conta inexistente (404)
 
 ### Como Executar os Testes
 ```bash
@@ -389,13 +418,16 @@ src/main/resources/
 
 ### Atividades em que foi Utilizada
 - Geração inicial de código das classes de configuração
-- Criação de testes unitários e de integração
+- Criação e revisão de testes unitários, de integração e de segurança
 - Sugestões de tratamento de exceções para garantir os retornos adequados
 - Verificação de atendimento às exigências do escopo
 - Documentação (anotações Swagger)
 - Revisão e atualização do README para cobrir todo o escopo
 - Geração e atualização de fluxograma
 - Geração e atualização de collection para Postman em json
+- Correção de bugs (mapper retornava null com endereco nulo)
+- Adição de testes de segurança (validação HTTP Basic Auth)
+- Cobertura para dados inválidos, campos faltantes e consistência de retornos
 
 ### Validação das Sugestões
 - Todas as sugestões foram revisadas e adaptadas ao contexto do projeto: api REST de cadastro de correntista
@@ -417,21 +449,22 @@ Abaixo são descritas algumas:
 ## 6. Evidência da Execução dos Testes
 
 ```
-[INFO] Tests run: 86, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 116, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
-Todos os 86 testes foram executados com sucesso:
+Todos os 116 testes foram executados com sucesso:
 - 1 teste de contexto (GeciaraApplicationTests)
-- 18 testes unitários de service (CorrentistaServiceTest)
+- 16 testes unitários de service (CorrentistaServiceTest)
 - 12 testes unitários de service (ContaServiceTest)
-- 10 testes de controller (CorrentistaControllerTest)
-- 7 testes de controller (ContaControllerTest)
-- 8 testes de mapper (CorrentistaMapperTest)
-- 5 testes de mapper (ContaMapperTest)
-- 15 testes de util (SanitizacaoUtilTest)
-- 5 testes de integração (CorrentistaIntegrationTest)
-- 5 testes de integração (ContaIntegrationTest)
+- 16 testes de controller (CorrentistaControllerTest)
+- 11 testes de controller (ContaControllerTest)
+- 12 testes de mapper (CorrentistaMapperTest)
+- 6 testes de mapper (ContaMapperTest)
+- 12 testes de validação (ValidacaoUtilTest)
+- 7 testes de segurança (SecurityIntegrationTest)
+- 9 testes de integração (CorrentistaIntegrationTest)
+- 13 testes de integração (ContaIntegrationTest)
 
 ## 7. Implementações futuras
 - Cadastro de documentação completa (RG, CPF/CNPJ, inscrições estadual/municipal)

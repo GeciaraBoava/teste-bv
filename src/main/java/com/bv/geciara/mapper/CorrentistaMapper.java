@@ -25,26 +25,27 @@ public class CorrentistaMapper {
 
     public Correntista toEntity(CorrentistaRequest dto) {
 
+        Endereco endereco = null;
         EnderecoRequest enderecoRequest = dto.getEndereco();
 
         if (enderecoRequest != null) {
-            Endereco endereco = Endereco.builder()
+            endereco = Endereco.builder()
                     .logradouro(enderecoRequest.getLogradouro())
                     .numero(enderecoRequest.getNumero())
+                    .complemento(enderecoRequest.getComplemento())
                     .bairro(enderecoRequest.getBairro())
                     .cidade(enderecoRequest.getCidade())
                     .uf(enderecoRequest.getUf())
                     .cep(enderecoRequest.getCep())
                     .build();
-
-            return Correntista.builder()
-                    .nomeCompleto(dto.getNomeCompleto())
-                    .endereco(endereco)
-                    .tipoIdentificador(dto.getTipoIdentificador())
-                    .numeroIdentificador(dto.getNumeroIdentificador())
-                    .build();
         }
-        return null;
+
+        return Correntista.builder()
+                .nomeCompleto(dto.getNomeCompleto())
+                .endereco(endereco)
+                .tipoIdentificador(dto.getTipoIdentificador())
+                .numeroIdentificador(dto.getNumeroIdentificador())
+                .build();
     }
 
     public CorrentistaResumoResponse toResumoResponse(Correntista entity) {

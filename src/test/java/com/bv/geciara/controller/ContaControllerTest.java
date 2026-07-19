@@ -11,6 +11,7 @@ import com.bv.geciara.service.ContaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ContaController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ContaControllerTest {
 
     @Autowired
@@ -65,7 +67,8 @@ class ContaControllerTest {
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.numero", is("456789")))
-                .andExpect(jsonPath("$.correntistaId", is(1)));
+                .andExpect(jsonPath("$.correntistaId", is(1)))
+                .andExpect(jsonPath("$.status", is("ATIVA")));
     }
 
     @Test
@@ -83,7 +86,8 @@ class ContaControllerTest {
                                     "tipo": "CORRENTE"
                                 }
                                 """))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensagem", is("Correntista não encontrado com ID: 99")));
     }
 
     @Test
@@ -98,6 +102,47 @@ class ContaControllerTest {
                                     "tipo": null
                                 }
                                 """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro", is("Erro de validação")))
+                .andExpect(jsonPath("$.detalhes").isMap());
+    }
+
+    @Test
+    void cadastrar_deveRetornar400_QuandoTipoInvalido() throws Exception {
+        mockMvc.perform(post("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "correntistaId": 1,
+                                    "numero": "456789",
+                                    "agencia": 1234,
+                                    "tipo": "INVALIDO"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void cadastrar_deveRetornar400_QuandoCampoDesconhecido() throws Exception {
+        mockMvc.perform(post("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "correntistaId": 1,
+                                    "numero": "456789",
+                                    "agencia": 1234,
+                                    "tipo": "CORRENTE",
+                                    "campoInvalido": "valor"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void cadastrar_deveRetornar400_QuandoBodyVazio() throws Exception {
+        mockMvc.perform(post("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -129,7 +174,32 @@ class ContaControllerTest {
                                     "saldo": 7500.00
                                 }
                                 """))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensagem", is("Conta não encontrada com ID: 99")));
+    }
+
+    @Test
+    void atualizar_deveAceitarBodyVazio() throws Exception {
+        when(contaService.atualizar(eq(1L), any(ContaAtualizacaoRequest.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/api/contas/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void atualizar_deveRetornar400_QuandoCampoDesconhecido() throws Exception {
+        mockMvc.perform(put("/api/contas/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "saldo": 7500.00,
+                                    "campoInvalido": "valor"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -148,6 +218,7 @@ class ContaControllerTest {
 
         mockMvc.perform(delete("/api/contas/99")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensagem", is("Conta não encontrada com ID: 99")));
     }
 }
