@@ -39,7 +39,6 @@ class CorrentistaControllerTest {
     @MockitoBean
     private CorrentistaService correntistaService;
 
-    private CorrentistaRequest request;
     private CorrentistaResumoResponse resumoResponse;
     private CorrentistaResponse response;
 
@@ -55,7 +54,7 @@ class CorrentistaControllerTest {
                 "01234567"
         );
 
-        request = new CorrentistaRequest(
+        CorrentistaRequest request = new CorrentistaRequest(
                 "Maria Silva",
                 enderecoRequest,
                 ETipoIdentificador.CPF,

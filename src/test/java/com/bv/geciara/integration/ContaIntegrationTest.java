@@ -1,10 +1,6 @@
 package com.bv.geciara.integration;
 
-import com.bv.geciara.dto.request.ContaAtualizacaoRequest;
-import com.bv.geciara.dto.request.ContaRequest;
 import com.bv.geciara.model.enums.EStatusConta;
-import com.bv.geciara.model.enums.ETipoConta;
-import com.bv.geciara.model.enums.ETipoIdentificador;
 import com.bv.geciara.repository.ContaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +12,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.math.BigDecimal;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

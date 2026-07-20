@@ -38,7 +38,6 @@ class CorrentistaMapperTest {
     @InjectMocks
     private CorrentistaMapper correntistaMapper;
 
-    private Endereco endereco;
     private EnderecoRequest enderecoRequest;
     private Correntista correntista;
 
@@ -54,7 +53,7 @@ class CorrentistaMapperTest {
                 "01234567"
         );
 
-        endereco = Endereco.builder()
+        Endereco endereco = Endereco.builder()
                 .logradouro("Rua das Flores")
                 .numero("123")
                 .complemento("Apto 1")
@@ -166,7 +165,7 @@ class CorrentistaMapperTest {
         assertEquals(ETipoIdentificador.CPF, response.tipoIdentificador());
         assertEquals("12345678900", response.numeroIdentificador());
         assertEquals(1, response.contas().size());
-        assertEquals("456789", response.contas().get(0).numero());
+        assertEquals("456789", response.contas().getFirst().numero());
     }
 
     @Test

@@ -2,13 +2,11 @@ package com.bv.geciara.service;
 
 import com.bv.geciara.dto.request.CorrentistaAtualizacaoRequest;
 import com.bv.geciara.dto.request.CorrentistaRequest;
-import com.bv.geciara.dto.request.EnderecoAtualizacaoRequest;
 import com.bv.geciara.dto.request.EnderecoRequest;
 import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.exception.CorrentistaNaoEncontradoException;
 import com.bv.geciara.exception.IdentificadorDuplicadoException;
-import com.bv.geciara.exception.IdentificadorInvalidoException;
 import com.bv.geciara.mapper.CorrentistaMapper;
 import com.bv.geciara.model.entities.Correntista;
 import com.bv.geciara.model.entities.Endereco;
@@ -91,7 +89,7 @@ class CorrentistaServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.getContent().size());
-        assertEquals("Maria Silva", resultado.getContent().get(0).nomeCompleto());
+        assertEquals("Maria Silva", resultado.getContent().getFirst().nomeCompleto());
         verify(correntistaRepository).findAll(Pageable.unpaged());
     }
 
@@ -114,7 +112,7 @@ class CorrentistaServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.getContent().size());
-        assertEquals("Maria Silva", resultado.getContent().get(0).nomeCompleto());
+        assertEquals("Maria Silva", resultado.getContent().getFirst().nomeCompleto());
         verify(correntistaRepository).findAllComContas(Pageable.unpaged());
     }
 
