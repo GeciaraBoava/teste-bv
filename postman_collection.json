@@ -27,6 +27,8 @@
               "script": {
                 "exec": [
                   "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Nome correto', () => pm.expect(pm.response.json().nomeCompleto).to.eql('Maria Clara Fernandes'));",
+                  "pm.test('CPF correto', () => pm.expect(pm.response.json().numeroIdentificador).to.eql('12345678909'));",
                   "pm.test('Salvar ID', () => {",
                   "  pm.collectionVariables.set('correntistaId', pm.response.json().id);",
                   "});"
@@ -133,7 +135,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Nome atualizado', () => pm.expect(pm.response.json().nomeCompleto).to.eql('Maria Clara Fernandes da Silva'));"
                 ]
               }
             }
@@ -295,6 +298,8 @@
                 "exec": [
                   "pm.test('201 Created', () => pm.response.to.have.status(201));",
                   "pm.test('Saldo zero', () => pm.expect(pm.response.json().saldo).to.eql(0));",
+                  "pm.test('Status ATIVA', () => pm.expect(pm.response.json().status).to.eql('ATIVA'));",
+                  "pm.test('Código banco correto', () => pm.expect(pm.response.json().codigoBanco).to.eql('001'));",
                   "pm.test('Salvar ID', () => {",
                   "  pm.collectionVariables.set('contaId', pm.response.json().id);",
                   "});"
@@ -319,7 +324,9 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Saldo atualizado', () => pm.expect(pm.response.json().saldo).to.eql(7500.00));",
+                  "pm.test('Agência atualizada', () => pm.expect(pm.response.json().agencia).to.eql(9999));"
                 ]
               }
             }
@@ -391,7 +398,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"correntistaId\": 99999,\n  \"numero\": \"000000\",\n  \"agencia\": 1234,\n  \"tipo\": \"CORRENTE\"\n}"
+              "raw": "{\n  \"correntistaId\": 99999,\n  \"numero\": \"000000\",\n  \"agencia\": 1234,\n  \"codigoBanco\": \"001\",\n  \"tipo\": \"CORRENTE\"\n}"
             }
           }
         },
@@ -413,7 +420,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"correntistaId\": null,\n  \"numero\": \"\",\n  \"agencia\": null,\n  \"tipo\": null\n}"
+              "raw": "{\n  \"correntistaId\": null,\n  \"numero\": \"\",\n  \"agencia\": null,\n  \"codigoBanco\": null,\n  \"tipo\": null\n}"
             }
           }
         }
