@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,38 +42,29 @@ class ContaControllerTest {
 
     @BeforeEach
     void setUp() {
-        response = ContaResponse.builder()
-                .id(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
-                .status(EStatusConta.ATIVA)
-                .correntistaId(1L)
-                .build();
+        response = new ContaResponse(1L, "456789", 1234, "001", ETipoConta.CORRENTE, new BigDecimal("5000.00"), EStatusConta.ATIVA, 1L, null, null);
     }
 
     @Test
     void listarTodos_deveRetornar200_ComDados() throws Exception {
-        when(contaService.listarTodos()).thenReturn(List.of(response));
+        when(contaService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(response)));
 
         mockMvc.perform(get("/api/contas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].numero", is("456789")))
-                .andExpect(jsonPath("$[0].correntistaId", is(1)));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].numero", is("456789")))
+                .andExpect(jsonPath("$.content[0].correntistaId", is(1)));
     }
 
     @Test
     void listarTodos_deveRetornar200_ListaVazia() throws Exception {
-        when(contaService.listarTodos()).thenReturn(List.of());
+        when(contaService.listarTodos(any(Pageable.class))).thenReturn(Page.empty());
 
         mockMvc.perform(get("/api/contas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test

@@ -14,10 +14,10 @@ public class ContaMapper {
 
     public Conta toEntity(ContaRequest dto, Correntista correntista) {
         return Conta.builder()
-                .numero(dto.getNumero())
-                .agencia(dto.getAgencia())
-                .codigoBanco(dto.getCodigoBanco())
-                .tipo(dto.getTipo())
+                .numero(dto.numero())
+                .agencia(dto.agencia())
+                .codigoBanco(dto.codigoBanco())
+                .tipo(dto.tipo())
                 .saldo(BigDecimal.ZERO)
                 .status(EStatusConta.ATIVA)
                 .correntista(correntista)
@@ -25,18 +25,18 @@ public class ContaMapper {
     }
 
     public ContaResponse toResponse(Conta entity) {
-        return ContaResponse.builder()
-                .id(entity.getId())
-                .numero(entity.getNumero())
-                .agencia(entity.getAgencia())
-                .codigoBanco(entity.getCodigoBanco())
-                .tipo(entity.getTipo())
-                .saldo(entity.getSaldo())
-                .status(entity.getStatus())
-                .correntistaId(entity.getCorrentista().getId())
-                .dataCadastro(entity.getDataCadastro())
-                .dataAtualizacao(entity.getDataAtualizacao())
-                .build();
+        return new ContaResponse(
+                entity.getId(),
+                entity.getNumero(),
+                entity.getAgencia(),
+                entity.getCodigoBanco(),
+                entity.getTipo(),
+                entity.getSaldo(),
+                entity.getStatus(),
+                entity.getCorrentista().getId(),
+                entity.getDataCadastro(),
+                entity.getDataAtualizacao()
+        );
     }
 
 }

@@ -35,13 +35,7 @@ class ContaMapperTest {
 
     @Test
     void toEntity_deveConverterTodosOsCampos() {
-        ContaRequest request = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .build();
+        ContaRequest request = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.CORRENTE);
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
@@ -57,13 +51,7 @@ class ContaMapperTest {
 
     @Test
     void toEntity_deveVincularCorrentista() {
-        ContaRequest request = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.POUPANCA)
-                .build();
+        ContaRequest request = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.POUPANCA);
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
@@ -75,13 +63,7 @@ class ContaMapperTest {
 
     @Test
     void toEntity_deveDefinirStatusPadraoATIVA() {
-        ContaRequest request = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .build();
+        ContaRequest request = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.CORRENTE);
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
@@ -92,13 +74,7 @@ class ContaMapperTest {
 
     @Test
     void toEntity_deveDefinirSaldoZero() {
-        ContaRequest request = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.POUPANCA)
-                .build();
+        ContaRequest request = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.POUPANCA);
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
@@ -127,16 +103,16 @@ class ContaMapperTest {
         ContaResponse response = contaMapper.toResponse(entity);
 
         assertNotNull(response);
-        assertEquals(1L, response.getId());
-        assertEquals("456789", response.getNumero());
-        assertEquals(1234, response.getAgencia());
-        assertEquals("001", response.getCodigoBanco());
-        assertEquals(ETipoConta.CORRENTE, response.getTipo());
-        assertEquals(new BigDecimal("5000.00"), response.getSaldo());
-        assertEquals(EStatusConta.ATIVA, response.getStatus());
-        assertEquals(1L, response.getCorrentistaId());
-        assertEquals(dataCadastro, response.getDataCadastro());
-        assertEquals(dataAtualizacao, response.getDataAtualizacao());
+        assertEquals(1L, response.id());
+        assertEquals("456789", response.numero());
+        assertEquals(1234, response.agencia());
+        assertEquals("001", response.codigoBanco());
+        assertEquals(ETipoConta.CORRENTE, response.tipo());
+        assertEquals(new BigDecimal("5000.00"), response.saldo());
+        assertEquals(EStatusConta.ATIVA, response.status());
+        assertEquals(1L, response.correntistaId());
+        assertEquals(dataCadastro, response.dataCadastro());
+        assertEquals(dataAtualizacao, response.dataAtualizacao());
     }
 
     @Test
@@ -161,8 +137,8 @@ class ContaMapperTest {
 
         ContaResponse response = contaMapper.toResponse(entity);
 
-        assertEquals(42L, response.getCorrentistaId());
-        assertEquals(EStatusConta.BLOQUEADA, response.getStatus());
-        assertEquals("237", response.getCodigoBanco());
+        assertEquals(42L, response.correntistaId());
+        assertEquals(EStatusConta.BLOQUEADA, response.status());
+        assertEquals("237", response.codigoBanco());
     }
 }

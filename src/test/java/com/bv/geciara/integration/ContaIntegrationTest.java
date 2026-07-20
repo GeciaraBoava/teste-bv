@@ -89,10 +89,10 @@ class ContaIntegrationTest {
         mockMvc.perform(get("/api/contas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$[0].numero", is("456789")))
-                .andExpect(jsonPath("$[0].codigoBanco", is("001")))
-                .andExpect(jsonPath("$[0].correntistaId", is(correntistaId.intValue())));
+                .andExpect(jsonPath("$.content", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$.content[0].numero", is("456789")))
+                .andExpect(jsonPath("$.content[0].codigoBanco", is("001")))
+                .andExpect(jsonPath("$.content[0].correntistaId", is(correntistaId.intValue())));
     }
 
     @Test
@@ -100,7 +100,7 @@ class ContaIntegrationTest {
         mockMvc.perform(get("/api/contas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test

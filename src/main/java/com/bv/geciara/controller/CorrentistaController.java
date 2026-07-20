@@ -15,11 +15,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/correntistas")
@@ -33,24 +34,27 @@ public class CorrentistaController {
     @GetMapping
     @Operation(
             summary = "Listar todos os correntistas (resumo)",
-            description = "Retorna resumo: id, nome, tipo e número do identificador",
+            description = "Retorna resumo paginado: id, nome, tipo e número do identificador. "
+                    + "Use os parâmetros page, size e sort para controlar a paginação.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
             })
-    public ResponseEntity<List<CorrentistaResumoResponse>> listarTodos() {
-        List<CorrentistaResumoResponse> correntistas = correntistaService.listarTodos();
+    public ResponseEntity<Page<CorrentistaResumoResponse>> listarTodos(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+        Page<CorrentistaResumoResponse> correntistas = correntistaService.listarTodos(pageable);
         return ResponseEntity.ok(correntistas);
     }
 
     @GetMapping("/completos")
     @Operation(
             summary = "Listar todos os correntistas (completo)",
-            description = "Retorna todos os dados incluindo endereço e contas",
+            description = "Retorna todos os dados incluindo endereço e contas, com paginação.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
             })
-    public ResponseEntity<List<CorrentistaResponse>> listarTodosCompletos() {
-        List<CorrentistaResponse> correntistas = correntistaService.listarTodosCompletos();
+    public ResponseEntity<Page<CorrentistaResponse>> listarTodosCompletos(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+        Page<CorrentistaResponse> correntistas = correntistaService.listarTodosCompletos(pageable);
         return ResponseEntity.ok(correntistas);
     }
 
@@ -64,7 +68,7 @@ public class CorrentistaController {
                             content = @Content(schema = @Schema(implementation = Void.class)))
             })
     public ResponseEntity<CorrentistaResponse> buscarPorIdentificador(
-            @Parameter(description = "Número do CPF/CNPJ/RG/Passaporte (somente números para CPF/RG)", example = "12345678909", required = true)
+            @Parameter(description = "Número do CPF/CNPJ/RG/Passaporte", example = "12345678909", required = true)
             @PathVariable String identificador) {
         CorrentistaResponse correntista = correntistaService.buscarPorIdentificador(identificador);
         return ResponseEntity.ok(correntista);

@@ -73,11 +73,11 @@ class CorrentistaIntegrationTest {
 
         mockMvc.perform(get("/api/correntistas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$.content", hasSize(1)));
 
         mockMvc.perform(get("/api/correntistas/completos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$.content", hasSize(1)));
 
         mockMvc.perform(delete("/api/correntistas/1"))
                 .andExpect(status().isNoContent());

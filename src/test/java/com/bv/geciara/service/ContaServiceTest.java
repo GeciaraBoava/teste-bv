@@ -18,6 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -67,24 +70,9 @@ class ContaServiceTest {
                 .correntista(correntista)
                 .build();
 
-        request = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .build();
+        request = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.CORRENTE);
 
-        response = ContaResponse.builder()
-                .id(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
-                .status(EStatusConta.ATIVA)
-                .correntistaId(1L)
-                .build();
+        response = new ContaResponse(1L, "456789", 1234, "001", ETipoConta.CORRENTE, new BigDecimal("5000.00"), EStatusConta.ATIVA, 1L, null, null);
     }
 
     @Test
@@ -97,20 +85,14 @@ class ContaServiceTest {
         ContaResponse resultado = contaService.cadastrar(request);
 
         assertNotNull(resultado);
-        assertEquals("456789", resultado.getNumero());
+        assertEquals("456789", resultado.numero());
         verify(correntistaRepository).findById(1L);
         verify(contaRepository).save(any(Conta.class));
     }
 
     @Test
     void cadastrar_deveDefinirStatusPadraoATIVA_QuandoNaoInformado() {
-        ContaRequest requestSemStatus = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .build();
+        ContaRequest requestSemStatus = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.CORRENTE);
 
         Conta contaSemStatus = Conta.builder()
                 .numero("456789")
@@ -135,13 +117,7 @@ class ContaServiceTest {
     void cadastrar_deveLancarExcecao_QuandoCorrentistaNaoEncontrado() {
         when(correntistaRepository.findById(99L)).thenReturn(Optional.empty());
 
-        ContaRequest requestInvalido = ContaRequest.builder()
-                .correntistaId(99L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .build();
+        ContaRequest requestInvalido = new ContaRequest(99L, "456789", 1234, "001", ETipoConta.CORRENTE);
 
         assertThrows(CorrentistaNaoEncontradoException.class,
                 () -> contaService.cadastrar(requestInvalido));
@@ -149,9 +125,7 @@ class ContaServiceTest {
 
     @Test
     void atualizar_deveAtualizarConta_QuandoDadosValidos() {
-        ContaAtualizacaoRequest atualizacaoRequest = ContaAtualizacaoRequest.builder()
-                .saldo(new BigDecimal("7500.00"))
-                .build();
+        ContaAtualizacaoRequest atualizacaoRequest = new ContaAtualizacaoRequest(null, null, null, null, new BigDecimal("7500.00"));
 
         when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
         when(contaRepository.save(conta)).thenReturn(conta);
@@ -168,9 +142,7 @@ class ContaServiceTest {
     void atualizar_deveLancarExcecao_QuandoContaNaoEncontrada() {
         when(contaRepository.findById(99L)).thenReturn(Optional.empty());
 
-        ContaAtualizacaoRequest atualizacaoRequest = ContaAtualizacaoRequest.builder()
-                .saldo(new BigDecimal("7500.00"))
-                .build();
+        ContaAtualizacaoRequest atualizacaoRequest = new ContaAtualizacaoRequest(null, null, null, null, new BigDecimal("7500.00"));
 
         assertThrows(ContaNaoEncontradaException.class,
                 () -> contaService.atualizar(99L, atualizacaoRequest));
@@ -211,13 +183,7 @@ class ContaServiceTest {
 
     @Test
     void cadastrar_deveManterStatusInformado_QuandoFornecido() {
-        ContaRequest requestComStatus = ContaRequest.builder()
-                .correntistaId(1L)
-                .numero("456789")
-                .agencia(1234)
-                .codigoBanco("001")
-                .tipo(ETipoConta.CORRENTE)
-                .build();
+        ContaRequest requestComStatus = new ContaRequest(1L, "456789", 1234, "001", ETipoConta.CORRENTE);
 
         Conta contaComStatus = Conta.builder()
                 .numero("456789")
@@ -241,13 +207,7 @@ class ContaServiceTest {
 
     @Test
     void atualizar_deveAtualizarMultiplosCampos() {
-        ContaAtualizacaoRequest multiRequest = ContaAtualizacaoRequest.builder()
-                .numero("999999")
-                .agencia(5678)
-                .codigoBanco("237")
-                .tipo(ETipoConta.POUPANCA)
-                .saldo(new BigDecimal("10000.00"))
-                .build();
+        ContaAtualizacaoRequest multiRequest = new ContaAtualizacaoRequest("999999", 5678, "237", ETipoConta.POUPANCA, new BigDecimal("10000.00"));
 
         when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
         when(contaRepository.save(conta)).thenReturn(conta);
@@ -266,8 +226,7 @@ class ContaServiceTest {
 
     @Test
     void atualizar_deveManterCamposNaoInformados() {
-        ContaAtualizacaoRequest vazioRequest = ContaAtualizacaoRequest.builder()
-                .build();
+        ContaAtualizacaoRequest vazioRequest = new ContaAtualizacaoRequest(null, null, null, null, null);
 
         when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
         when(contaRepository.save(conta)).thenReturn(conta);
@@ -284,9 +243,7 @@ class ContaServiceTest {
 
     @Test
     void atualizar_deveAtualizarApenasAgencia() {
-        ContaAtualizacaoRequest agenciaRequest = ContaAtualizacaoRequest.builder()
-                .agencia(9999)
-                .build();
+        ContaAtualizacaoRequest agenciaRequest = new ContaAtualizacaoRequest(null, 9999, null, null, null);
 
         when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
         when(contaRepository.save(conta)).thenReturn(conta);
@@ -301,25 +258,25 @@ class ContaServiceTest {
 
     @Test
     void listarTodos_deveRetornarListaDeContas() {
-        when(contaRepository.findAll()).thenReturn(List.of(conta));
+        when(contaRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(conta)));
         when(contaMapper.toResponse(conta)).thenReturn(response);
 
-        List<ContaResponse> resultado = contaService.listarTodos();
+        Page<ContaResponse> resultado = contaService.listarTodos(Pageable.unpaged());
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("456789", resultado.get(0).getNumero());
-        verify(contaRepository).findAll();
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("456789", resultado.getContent().get(0).numero());
+        verify(contaRepository).findAll(any(Pageable.class));
     }
 
     @Test
     void listarTodos_deveRetornarListaVazia_QuandoNaoExistirContas() {
-        when(contaRepository.findAll()).thenReturn(List.of());
+        when(contaRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
 
-        List<ContaResponse> resultado = contaService.listarTodos();
+        Page<ContaResponse> resultado = contaService.listarTodos(Pageable.unpaged());
 
         assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
-        verify(contaRepository).findAll();
+        assertTrue(resultado.getContent().isEmpty());
+        verify(contaRepository).findAll(any(Pageable.class));
     }
 }
