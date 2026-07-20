@@ -1,40 +1,34 @@
 package com.bv.geciara.dto.request;
 
-import com.bv.geciara.model.enums.EStatusConta;
 import com.bv.geciara.model.enums.ETipoConta;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Schema(description = "Requisição para criação de conta vinculada a um correntista")
-public class ContaRequest {
+public record ContaRequest(
 
-    @Schema(description = "ID do correntista ao qual a conta será vinculada", example = "1")
-    @NotNull(message = "ID do correntista é obrigatório")
-    private Long correntistaId;
+        @Schema(description = "ID do correntista ao qual a conta será vinculada", example = "1")
+        @NotNull(message = "ID do correntista é obrigatório")
+        Long correntistaId,
 
-    @Schema(description = "Número da conta (6 dígitos)", example = "456789")
-    @NotNull(message = "Número da conta é obrigatório")
-    @Size(min = 1, max = 20, message = "Tamanho máximo de 20 caracteres excedido")
-    private String numero;
+        @Schema(description = "Número da conta (até 20 caracteres)", example = "456789")
+        @NotNull(message = "Número da conta é obrigatório")
+        @Size(min = 1, max = 20, message = "Tamanho máximo de 20 caracteres excedido")
+        String numero,
 
-    @Schema(description = "Número da agência (4 dígitos)", example = "1234")
-    @NotNull(message = "Agência é obrigatória")
-    private Integer agencia;
+        @Schema(description = "Número da agência (4 dígitos)", example = "1234")
+        @NotNull(message = "Agência é obrigatória")
+        Integer agencia,
 
-    @Schema(description = "Código do banco (3 dígitos)", example = "001")
-    @NotNull(message = "Código do banco é obrigatório")
-    @jakarta.validation.constraints.Size(min = 3, max = 3, message = "Código do banco deve ter exatamente 3 caracteres")
-    private String codigoBanco;
+        @Schema(description = "Código do banco (3 dígitos)", example = "001")
+        @NotNull(message = "Código do banco é obrigatório")
+        @Size(min = 3, max = 3, message = "Código do banco deve ter exatamente 3 caracteres")
+        String codigoBanco,
 
-    @Schema(description = "Tipo da conta", example = "CORRENTE")
-    @NotNull(message = "Tipo da conta é obrigatório")
-    private ETipoConta tipo;
+        @Schema(description = "Tipo da conta", example = "CORRENTE")
+        @NotNull(message = "Tipo da conta é obrigatório")
+        ETipoConta tipo
 
+) {
 }

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,28 +45,29 @@ class CorrentistaControllerTest {
 
     @BeforeEach
     void setUp() {
-        EnderecoRequest enderecoRequest = EnderecoRequest.builder()
-                .logradouro("Rua das Flores")
-                .numero("123")
-                .bairro("Centro")
-                .cidade("São Paulo")
-                .uf("SP")
-                .cep("01234567")
-                .build();
+        EnderecoRequest enderecoRequest = new EnderecoRequest(
+                "Rua das Flores",
+                "123",
+                null,
+                "Centro",
+                "São Paulo",
+                "SP",
+                "01234567"
+        );
 
-        request = CorrentistaRequest.builder()
-                .nomeCompleto("Maria Silva")
-                .endereco(enderecoRequest)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        request = new CorrentistaRequest(
+                "Maria Silva",
+                enderecoRequest,
+                ETipoIdentificador.CPF,
+                "12345678900"
+        );
 
-        resumoResponse = CorrentistaResumoResponse.builder()
-                .id(1L)
-                .nomeCompleto("Maria Silva")
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        resumoResponse = new CorrentistaResumoResponse(
+                1L,
+                "Maria Silva",
+                ETipoIdentificador.CPF,
+                "12345678900"
+        );
 
         Endereco endereco = Endereco.builder()
                 .logradouro("Rua das Flores")
@@ -76,45 +78,50 @@ class CorrentistaControllerTest {
                 .cep("01234567")
                 .build();
 
-        response = CorrentistaResponse.builder()
-                .id(1L)
-                .nomeCompleto("Maria Silva")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        response = new CorrentistaResponse(
+                1L,
+                "Maria Silva",
+                endereco,
+                ETipoIdentificador.CPF,
+                "12345678900",
+                null,
+                null
+        );
     }
 
     @Test
     void listarTodos_deveRetornarListaComSucesso() throws Exception {
-        when(correntistaService.listarTodos()).thenReturn(List.of(resumoResponse));
+        when(correntistaService.listarTodos(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(resumoResponse)));
 
         mockMvc.perform(get("/api/correntistas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].nomeCompleto", is("Maria Silva")));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].nomeCompleto", is("Maria Silva")));
     }
 
     @Test
     void listarTodos_deveRetornarListaVazia() throws Exception {
-        when(correntistaService.listarTodos()).thenReturn(List.of());
+        when(correntistaService.listarTodos(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(get("/api/correntistas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test
     void listarTodosCompletos_deveRetornarListaComSucesso() throws Exception {
-        when(correntistaService.listarTodosCompletos()).thenReturn(List.of(response));
+        when(correntistaService.listarTodosCompletos(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(response)));
 
         mockMvc.perform(get("/api/correntistas/completos")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].endereco.logradouro", is("Rua das Flores")));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].endereco.logradouro", is("Rua das Flores")));
     }
 
     @Test

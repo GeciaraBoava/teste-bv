@@ -44,15 +44,15 @@ class CorrentistaMapperTest {
 
     @BeforeEach
     void setUp() {
-        enderecoRequest = EnderecoRequest.builder()
-                .logradouro("Rua das Flores")
-                .numero("123")
-                .complemento("Apto 1")
-                .bairro("Centro")
-                .cidade("São Paulo")
-                .uf("SP")
-                .cep("01234567")
-                .build();
+        enderecoRequest = new EnderecoRequest(
+                "Rua das Flores",
+                "123",
+                "Apto 1",
+                "Centro",
+                "São Paulo",
+                "SP",
+                "01234567"
+        );
 
         endereco = Endereco.builder()
                 .logradouro("Rua das Flores")
@@ -76,12 +76,12 @@ class CorrentistaMapperTest {
 
     @Test
     void toEntity_deveConverterTodosOsCampos() {
-        CorrentistaRequest request = CorrentistaRequest.builder()
-                .nomeCompleto("Maria Silva")
-                .endereco(enderecoRequest)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        CorrentistaRequest request = new CorrentistaRequest(
+                "Maria Silva",
+                enderecoRequest,
+                ETipoIdentificador.CPF,
+                "12345678900"
+        );
 
         Correntista entity = correntistaMapper.toEntity(request);
 
@@ -101,12 +101,12 @@ class CorrentistaMapperTest {
 
     @Test
     void toEntity_deveAceitarEnderecoNull() {
-        CorrentistaRequest request = CorrentistaRequest.builder()
-                .nomeCompleto("Maria Silva")
-                .endereco(null)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        CorrentistaRequest request = new CorrentistaRequest(
+                "Maria Silva",
+                null,
+                ETipoIdentificador.CPF,
+                "12345678900"
+        );
 
         Correntista entity = correntistaMapper.toEntity(request);
 
@@ -120,23 +120,26 @@ class CorrentistaMapperTest {
         CorrentistaResumoResponse resumo = correntistaMapper.toResumoResponse(correntista);
 
         assertNotNull(resumo);
-        assertEquals(1L, resumo.getId());
-        assertEquals("Maria Silva", resumo.getNomeCompleto());
-        assertEquals(ETipoIdentificador.CPF, resumo.getTipoIdentificador());
-        assertEquals("12345678900", resumo.getNumeroIdentificador());
+        assertEquals(1L, resumo.id());
+        assertEquals("Maria Silva", resumo.nomeCompleto());
+        assertEquals(ETipoIdentificador.CPF, resumo.tipoIdentificador());
+        assertEquals("12345678900", resumo.numeroIdentificador());
     }
 
     @Test
     void toResponse_deveConverterTodosOsCampos() {
-        ContaResponse contaResponse = ContaResponse.builder()
-                .id(1L)
-                .numero("456789")
-                .agencia(1234)
-                .tipo(ETipoConta.CORRENTE)
-                .saldo(new BigDecimal("5000.00"))
-                .status(EStatusConta.ATIVA)
-                .correntistaId(1L)
-                .build();
+        ContaResponse contaResponse = new ContaResponse(
+                1L,
+                "456789",
+                1234,
+                null,
+                ETipoConta.CORRENTE,
+                new BigDecimal("5000.00"),
+                EStatusConta.ATIVA,
+                1L,
+                null,
+                null
+        );
 
         correntista.setContas(new ArrayList<>(List.of(
                 com.bv.geciara.model.entities.Conta.builder()
@@ -156,14 +159,14 @@ class CorrentistaMapperTest {
         CorrentistaResponse response = correntistaMapper.toResponse(correntista);
 
         assertNotNull(response);
-        assertEquals(1L, response.getId());
-        assertEquals("Maria Silva", response.getNomeCompleto());
-        assertNotNull(response.getEndereco());
-        assertEquals("Rua das Flores", response.getEndereco().getLogradouro());
-        assertEquals(ETipoIdentificador.CPF, response.getTipoIdentificador());
-        assertEquals("12345678900", response.getNumeroIdentificador());
-        assertEquals(1, response.getContas().size());
-        assertEquals("456789", response.getContas().get(0).getNumero());
+        assertEquals(1L, response.id());
+        assertEquals("Maria Silva", response.nomeCompleto());
+        assertNotNull(response.endereco());
+        assertEquals("Rua das Flores", response.endereco().getLogradouro());
+        assertEquals(ETipoIdentificador.CPF, response.tipoIdentificador());
+        assertEquals("12345678900", response.numeroIdentificador());
+        assertEquals(1, response.contas().size());
+        assertEquals("456789", response.contas().get(0).numero());
     }
 
     @Test
@@ -173,8 +176,8 @@ class CorrentistaMapperTest {
         CorrentistaResponse response = correntistaMapper.toResponse(correntista);
 
         assertNotNull(response);
-        assertNotNull(response.getContas());
-        assertTrue(response.getContas().isEmpty());
+        assertNotNull(response.contas());
+        assertTrue(response.contas().isEmpty());
     }
 
     @Test
@@ -183,15 +186,18 @@ class CorrentistaMapperTest {
 
         CorrentistaResponse response = correntistaMapper.toResponse(correntista);
 
-        assertNotNull(response.getContas());
-        assertTrue(response.getContas().isEmpty());
+        assertNotNull(response.contas());
+        assertTrue(response.contas().isEmpty());
     }
 
     @Test
     void updateEntity_deveAtualizarApenasNomeCompleto() {
-        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
-                .nomeCompleto("Maria Silva Santos")
-                .build();
+        CorrentistaAtualizacaoRequest dto = new CorrentistaAtualizacaoRequest(
+                "Maria Silva Santos",
+                null,
+                null,
+                null
+        );
 
         correntistaMapper.updateEntity(dto, correntista);
 
@@ -202,13 +208,22 @@ class CorrentistaMapperTest {
 
     @Test
     void updateEntity_deveAtualizarEnderecoParcial() {
-        EnderecoAtualizacaoRequest novoEndereco = EnderecoAtualizacaoRequest.builder()
-                .logradouro("Av. Paulista")
-                .build();
+        EnderecoAtualizacaoRequest novoEndereco = new EnderecoAtualizacaoRequest(
+                "Av. Paulista",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 
-        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
-                .endereco(novoEndereco)
-                .build();
+        CorrentistaAtualizacaoRequest dto = new CorrentistaAtualizacaoRequest(
+                null,
+                novoEndereco,
+                null,
+                null
+        );
 
         correntistaMapper.updateEntity(dto, correntista);
 
@@ -221,16 +236,22 @@ class CorrentistaMapperTest {
     void updateEntity_deveCriarEndereco_QuandoNaoExistir() {
         correntista.setEndereco(null);
 
-        EnderecoAtualizacaoRequest novoEndereco = EnderecoAtualizacaoRequest.builder()
-                .logradouro("Av. Paulista")
-                .numero("1000")
-                .uf("SP")
-                .cep("01310100")
-                .build();
+        EnderecoAtualizacaoRequest novoEndereco = new EnderecoAtualizacaoRequest(
+                "Av. Paulista",
+                "1000",
+                null,
+                null,
+                null,
+                "SP",
+                "01310100"
+        );
 
-        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
-                .endereco(novoEndereco)
-                .build();
+        CorrentistaAtualizacaoRequest dto = new CorrentistaAtualizacaoRequest(
+                null,
+                novoEndereco,
+                null,
+                null
+        );
 
         correntistaMapper.updateEntity(dto, correntista);
 
@@ -241,10 +262,12 @@ class CorrentistaMapperTest {
 
     @Test
     void updateEntity_deveAtualizarIdentificador() {
-        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
-                .tipoIdentificador(ETipoIdentificador.CNPJ)
-                .numeroIdentificador("12345678000190")
-                .build();
+        CorrentistaAtualizacaoRequest dto = new CorrentistaAtualizacaoRequest(
+                null,
+                null,
+                ETipoIdentificador.CNPJ,
+                "12345678000190"
+        );
 
         correntistaMapper.updateEntity(dto, correntista);
 
@@ -254,10 +277,12 @@ class CorrentistaMapperTest {
 
     @Test
     void updateEntity_deveLancarExcecao_QuandoIdentificadorInvalido() {
-        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder()
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("123")
-                .build();
+        CorrentistaAtualizacaoRequest dto = new CorrentistaAtualizacaoRequest(
+                null,
+                null,
+                ETipoIdentificador.CPF,
+                "123"
+        );
 
         assertThrows(IdentificadorInvalidoException.class,
                 () -> correntistaMapper.updateEntity(dto, correntista));
@@ -268,7 +293,12 @@ class CorrentistaMapperTest {
         String nomeOriginal = correntista.getNomeCompleto();
         String idOriginal = correntista.getNumeroIdentificador();
 
-        CorrentistaAtualizacaoRequest dto = CorrentistaAtualizacaoRequest.builder().build();
+        CorrentistaAtualizacaoRequest dto = new CorrentistaAtualizacaoRequest(
+                null,
+                null,
+                null,
+                null
+        );
 
         correntistaMapper.updateEntity(dto, correntista);
 

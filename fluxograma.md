@@ -200,12 +200,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([GET /api/contas]) --> AUTH{Autenticado?<br/>Basic Auth}
+    START([GET /api/contas<br/>page, size, sort]) --> AUTH{Autenticado?<br/>Basic Auth}
     AUTH -->|Não| ERR401[401 Unauthorized]
-    AUTH -->|Sim| FIND[Repository.findAll<br/>busca todas as contas]
+    AUTH -->|Sim| FIND[Repository.findAll<br/>(Pageable) busca pagina de contas]
 
     FIND --> MAP[ContaMapper.toResponse<br/>converte cada Entity → Response]
-    MAP --> OK([200 OK<br/>Lista de ContaResponse])
+    MAP --> OK([200 OK<br/>Page of ContaResponse<br/>content, page, size, totalElements])
 
     ERR401 --> HANDLER[ApiExceptionHandler]
     HANDLER --> CLIENT([Cliente recebe erro])
@@ -498,38 +498,38 @@ classDiagram
 
 ---
 
-## 14. Fluxo de DTOs (Request → Entity → Response)
+## 14. Fluxo de DTOs (Request record → Entity → Response record)
 
 ```mermaid
 flowchart LR
     subgraph "Correntista - Criação"
-        CR1[CorrentistaRequest<br/>todos campos obrigatórios] --> CM1[CorrentistaMapper.toEntity]
+        CR1["CorrentistaRequest (record)<br/>todos campos obrigatórios"] --> CM1[CorrentistaMapper.toEntity]
         CM1 --> CE[Correntista Entity]
     end
 
     subgraph "Correntista - Atualização"
-        CRU[CorrentistaAtualizacaoRequest<br/>todos campos opcionais] --> CMU[CorrentistaMapper.updateEntity]
+        CRU["CorrentistaAtualizacaoRequest (record)<br/>todos campos opcionais"] --> CMU[CorrentistaMapper.updateEntity]
         CMU --> CE
     end
 
     subgraph "Correntista - Resposta"
         CE --> CM2[CorrentistaMapper.toResponse]
-        CM2 --> CR2[CorrentistaResponse<br/>com lista de contas]
+        CM2 --> CR2["CorrentistaResponse (record)<br/>com lista de contas"]
     end
 
     subgraph "Conta - Criação"
-        CT1[ContaRequest<br/>correntistaId, numero, agencia, codigoBanco, tipo] --> CTM1[ContaMapper.toEntity<br/>saldo=ZERO, status=ATIVA]
+        CT1["ContaRequest (record)<br/>correntistaId, numero, agencia, codigoBanco, tipo"] --> CTM1[ContaMapper.toEntity<br/>saldo=ZERO, status=ATIVA]
         CTM1 --> CTE[Conta Entity]
     end
 
     subgraph "Conta - Atualização"
-        CTU[ContaAtualizacaoRequest<br/>todos campos opcionais] --> CTMU[Service atualiza<br/>campos não nulos]
+        CTU["ContaAtualizacaoRequest (record)<br/>todos campos opcionais"] --> CTMU[Service atualiza<br/>campos não nulos]
         CTMU --> CTE
     end
 
     subgraph "Conta - Resposta"
         CTE --> CTM2[ContaMapper.toResponse]
-        CTM2 --> CT2[ContaResponse<br/>com correntistaId]
+        CTM2 --> CT2["ContaResponse (record)<br/>com correntistaId"]
     end
 
     style CR1 fill:#e7f3ff

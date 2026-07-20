@@ -68,9 +68,24 @@ A API ficará disponível em: `http://localhost:8080`
 
 ### Exemplos de Chamadas
 
-#### Listar todos os correntistas
+#### Listar correntistas (paginado)
 ```bash
-GET http://localhost:8080/api/correntistas
+GET http://localhost:8080/api/correntistas?page=0&size=10&sort=nomeCompleto,asc
+```
+Parâmetros de paginação:
+- `page` — número da página (zero-based, padrão: 0)
+- `size` — itens por página (padrão: 20)
+- `sort` — campo e direção de ordenação (padrão: `id,asc`)
+
+Resposta paginada:
+```json
+{
+    "content": [ ... ],
+    "page": 0,
+    "size": 10,
+    "totalElements": 25,
+    "totalPages": 3
+}
 ```
 
 #### Buscar correntista por identificador
@@ -125,10 +140,11 @@ DELETE http://localhost:8080/api/correntistas/1
 
 ### Endpoints de Contas
 
-#### Listar todas as contas
+#### Listar contas (paginado)
 ```bash
-GET http://localhost:8080/api/contas
+GET http://localhost:8080/api/contas?page=0&size=10&sort=numero,asc
 ```
+Mesmos parâmetros de paginação descritos acima. Resposta segue o mesmo formato paginado.
 
 #### Cadastrar nova conta
 ```bash
@@ -198,7 +214,7 @@ src/main/java/com/bv/geciara/
 ├── controller/      # Endpoints REST
 │   ├── ContaController.java
 │   └── CorrentistaController.java
-├── dto/             # Data Transfer Objects
+├── dto/             # Data Transfer Objects (records Java)
 │   ├── request/
 │   │   ├── ContaAtualizacaoRequest.java
 │   │   ├── ContaRequest.java
@@ -254,8 +270,8 @@ src/main/resources/
 | **ContaService** | Contém regras de negócio para criação, atualização e encerramento de contas |
 | **CorrentistaRepository** | Acesso a dados de correntistas via Spring Data JPA |
 | **ContaRepository** | Acesso a dados de contas via Spring Data JPA |
-| **CorrentistaMapper** | Converte entre DTOs e entidades de correntista |
-| **ContaMapper** | Converte entre DTOs e entidades de conta |
+| **CorrentistaMapper** | Converte entre records DTO e entidades de correntista |
+| **ContaMapper** | Converte entre records DTO e entidades de conta |
 | **ValidacaoUtil** | Valida formato de identificadores (CPF, CNPJ, Passaporte, RG) |
 | **AtLeastOneNonNullField** | Valida que ao menos um campo seja informado em requisições de atualização |
 | **SecurityConfig** | Configura HTTP Basic Auth e permissões de acesso |
@@ -266,6 +282,15 @@ src/main/resources/
 - **ORM**: Spring Data JPA com Hibernate
 - **Auditoria**: Campo `dataCadastro` (imutável) e `dataAtualizacao` via `@CreatedDate` e `@LastModifiedDate`
 - **Docker**: Perfil `docker` configura H2 em memória com console desabilitado
+
+### DTOs e Paginação
+- **Records**: Os DTOs de request e response são implementados como Java records, oferecendo imutabilidade, igualdade baseada em valores e código conciso sem necessidade de Lombok
+- **Paginação**: Endpoints de listagem (`GET /api/correntistas` e `GET /api/contas`) retornam resultados paginados utilizando `Pageable` do Spring, com suporte a parâmetros `page`, `size` e `sort`
+
+### Recursos do Java 21 Utilizados
+- **Records**: DTOs de request e response (`CorrentistaRequest`, `ContaResponse`, etc.)
+- **Expressões switch**: Validação de tipo de identificador no `ValidacaoUtil`
+- **Pattern matching instanceof**: Verificação de tipos com sintaxe simplificada
 
 ### Estratégia de Validação e Tratamento de Erros
 - **Bean Validation**: `@NotBlank`, `@NotNull`, `@Size` nos DTOs

@@ -20,6 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,14 +54,7 @@ class CorrentistaServiceTest {
 
     @BeforeEach
     void setUp() {
-        enderecoRequest = EnderecoRequest.builder()
-                .logradouro("Rua das Flores")
-                .numero("123")
-                .bairro("Centro")
-                .cidade("São Paulo")
-                .uf("SP")
-                .cep("01234567")
-                .build();
+        enderecoRequest = new EnderecoRequest("Rua das Flores", "123", null, "Centro", "São Paulo", "SP", "01234567");
 
         endereco = Endereco.builder()
                 .logradouro("Rua das Flores")
@@ -77,51 +73,33 @@ class CorrentistaServiceTest {
                 .numeroIdentificador("12345678900")
                 .build();
 
-        request = CorrentistaRequest.builder()
-                .nomeCompleto("Maria Silva")
-                .endereco(enderecoRequest)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        request = new CorrentistaRequest("Maria Silva", enderecoRequest, ETipoIdentificador.CPF, "12345678900");
 
-        atualizacaoRequest = CorrentistaAtualizacaoRequest.builder()
-                .nomeCompleto("Maria Silva Santos")
-                .build();
+        atualizacaoRequest = new CorrentistaAtualizacaoRequest("Maria Silva Santos", null, null, null);
 
-        resumoResponse = CorrentistaResumoResponse.builder()
-                .id(1L)
-                .nomeCompleto("Maria Silva")
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        resumoResponse = new CorrentistaResumoResponse(1L, "Maria Silva", ETipoIdentificador.CPF, "12345678900");
 
-        response = CorrentistaResponse.builder()
-                .id(1L)
-                .nomeCompleto("Maria Silva")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        response = new CorrentistaResponse(1L, "Maria Silva", endereco, ETipoIdentificador.CPF, "12345678900", null, null);
     }
 
     @Test
     void listarTodos_deveRetornarListaDeCorrentistas() {
-        when(correntistaRepository.findAll()).thenReturn(List.of(correntista));
+        when(correntistaRepository.findAll(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(correntista)));
         when(correntistaMapper.toResumoResponse(correntista)).thenReturn(resumoResponse);
 
-        List<CorrentistaResumoResponse> resultado = correntistaService.listarTodos();
+        Page<CorrentistaResumoResponse> resultado = correntistaService.listarTodos(Pageable.unpaged());
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Maria Silva", resultado.get(0).getNomeCompleto());
-        verify(correntistaRepository).findAll();
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("Maria Silva", resultado.getContent().get(0).nomeCompleto());
+        verify(correntistaRepository).findAll(Pageable.unpaged());
     }
 
     @Test
     void listarTodos_deveRetornarListaVazia_QuandoNenhumCorrentista() {
-        when(correntistaRepository.findAll()).thenReturn(List.of());
+        when(correntistaRepository.findAll(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of()));
 
-        List<CorrentistaResumoResponse> resultado = correntistaService.listarTodos();
+        Page<CorrentistaResumoResponse> resultado = correntistaService.listarTodos(Pageable.unpaged());
 
         assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
@@ -129,22 +107,22 @@ class CorrentistaServiceTest {
 
     @Test
     void listarTodosCompletos_deveRetornarListaDeCorrentistasComContas() {
-        when(correntistaRepository.findAllComContas()).thenReturn(List.of(correntista));
+        when(correntistaRepository.findAllComContas(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(correntista)));
         when(correntistaMapper.toResponse(correntista)).thenReturn(response);
 
-        List<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos();
+        Page<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos(Pageable.unpaged());
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Maria Silva", resultado.get(0).getNomeCompleto());
-        verify(correntistaRepository).findAllComContas();
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("Maria Silva", resultado.getContent().get(0).nomeCompleto());
+        verify(correntistaRepository).findAllComContas(Pageable.unpaged());
     }
 
     @Test
     void listarTodosCompletos_deveRetornarListaVazia_QuandoNenhumCorrentista() {
-        when(correntistaRepository.findAllComContas()).thenReturn(List.of());
+        when(correntistaRepository.findAllComContas(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of()));
 
-        List<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos();
+        Page<CorrentistaResponse> resultado = correntistaService.listarTodosCompletos(Pageable.unpaged());
 
         assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
@@ -159,8 +137,8 @@ class CorrentistaServiceTest {
         CorrentistaResponse resultado = correntistaService.buscarPorIdentificador("12345678900");
 
         assertNotNull(resultado);
-        assertEquals(1L, resultado.getId());
-        assertEquals("Maria Silva", resultado.getNomeCompleto());
+        assertEquals(1L, resultado.id());
+        assertEquals("Maria Silva", resultado.nomeCompleto());
     }
 
     @Test
@@ -185,7 +163,7 @@ class CorrentistaServiceTest {
         CorrentistaResponse resultado = correntistaService.cadastrar(request);
 
         assertNotNull(resultado);
-        assertEquals("Maria Silva", resultado.getNomeCompleto());
+        assertEquals("Maria Silva", resultado.nomeCompleto());
         verify(correntistaRepository).save(any(Correntista.class));
     }
 
@@ -202,12 +180,7 @@ class CorrentistaServiceTest {
 
     @Test
     void cadastrar_deveChamarExistsComIdentificadorDoRequest() {
-        CorrentistaRequest requestFormatado = CorrentistaRequest.builder()
-                .nomeCompleto("Pedro Costa")
-                .endereco(enderecoRequest)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("11122233344")
-                .build();
+        CorrentistaRequest requestFormatado = new CorrentistaRequest("Pedro Costa", enderecoRequest, ETipoIdentificador.CPF, "11122233344");
 
         Correntista pedro = Correntista.builder()
                 .id(2L)
@@ -217,13 +190,7 @@ class CorrentistaServiceTest {
                 .numeroIdentificador("11122233344")
                 .build();
 
-        CorrentistaResponse pedroResponse = CorrentistaResponse.builder()
-                .id(2L)
-                .nomeCompleto("Pedro Costa")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("11122233344")
-                .build();
+        CorrentistaResponse pedroResponse = new CorrentistaResponse(2L, "Pedro Costa", endereco, ETipoIdentificador.CPF, "11122233344", null, null);
 
         when(correntistaRepository.existsByNumeroIdentificador("11122233344")).thenReturn(false);
         when(correntistaMapper.toEntity(requestFormatado)).thenReturn(pedro);
@@ -233,19 +200,13 @@ class CorrentistaServiceTest {
         CorrentistaResponse resultado = correntistaService.cadastrar(requestFormatado);
 
         assertNotNull(resultado);
-        assertEquals("Pedro Costa", resultado.getNomeCompleto());
+        assertEquals("Pedro Costa", resultado.nomeCompleto());
         verify(correntistaRepository).existsByNumeroIdentificador("11122233344");
     }
 
     @Test
     void atualizar_deveAtualizarCorrentista_QuandoDadosValidos() {
-        CorrentistaResponse responseAtualizado = CorrentistaResponse.builder()
-                .id(1L)
-                .nomeCompleto("Maria Silva Santos")
-                .endereco(endereco)
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        CorrentistaResponse responseAtualizado = new CorrentistaResponse(1L, "Maria Silva Santos", endereco, ETipoIdentificador.CPF, "12345678900", null, null);
 
         when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
         when(correntistaRepository.save(correntista)).thenReturn(correntista);
@@ -254,7 +215,7 @@ class CorrentistaServiceTest {
         CorrentistaResponse resultado = correntistaService.atualizar(1L, atualizacaoRequest);
 
         assertNotNull(resultado);
-        assertEquals("Maria Silva Santos", resultado.getNomeCompleto());
+        assertEquals("Maria Silva Santos", resultado.nomeCompleto());
         verify(correntistaRepository).save(correntista);
     }
 
@@ -271,10 +232,7 @@ class CorrentistaServiceTest {
 
     @Test
     void atualizar_devePermitirAtualizacao_QuandoMesmoIdentificador() {
-        CorrentistaAtualizacaoRequest mesmoIdRequest = CorrentistaAtualizacaoRequest.builder()
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("12345678900")
-                .build();
+        CorrentistaAtualizacaoRequest mesmoIdRequest = new CorrentistaAtualizacaoRequest(null, null, ETipoIdentificador.CPF, "12345678900");
 
         when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
         when(correntistaRepository.save(correntista)).thenReturn(correntista);
@@ -288,10 +246,7 @@ class CorrentistaServiceTest {
 
     @Test
     void atualizar_deveLancarExcecao_QuandoNovoIdentificadorDuplicado() {
-        CorrentistaAtualizacaoRequest reqNovoId = CorrentistaAtualizacaoRequest.builder()
-                .tipoIdentificador(ETipoIdentificador.CPF)
-                .numeroIdentificador("98765432100")
-                .build();
+        CorrentistaAtualizacaoRequest reqNovoId = new CorrentistaAtualizacaoRequest(null, null, ETipoIdentificador.CPF, "98765432100");
 
         when(correntistaRepository.findById(1L)).thenReturn(Optional.of(correntista));
         when(correntistaRepository.existsByNumeroIdentificador("98765432100")).thenReturn(true);

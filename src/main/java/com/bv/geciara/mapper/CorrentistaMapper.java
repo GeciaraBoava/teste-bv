@@ -7,7 +7,6 @@ import com.bv.geciara.dto.request.EnderecoRequest;
 import com.bv.geciara.dto.response.CorrentistaResumoResponse;
 import com.bv.geciara.dto.response.CorrentistaResponse;
 import com.bv.geciara.dto.response.ContaResponse;
-import com.bv.geciara.exception.IdentificadorDuplicadoException;
 import com.bv.geciara.exception.IdentificadorInvalidoException;
 import com.bv.geciara.model.entities.Correntista;
 import com.bv.geciara.model.entities.Endereco;
@@ -24,38 +23,36 @@ public class CorrentistaMapper {
     private final ContaMapper contaMapper;
 
     public Correntista toEntity(CorrentistaRequest dto) {
-
         Endereco endereco = null;
-        EnderecoRequest enderecoRequest = dto.getEndereco();
 
-        if (enderecoRequest != null) {
+        if (dto.endereco() != null) {
+            EnderecoRequest er = dto.endereco();
             endereco = Endereco.builder()
-                    .logradouro(enderecoRequest.getLogradouro())
-                    .numero(enderecoRequest.getNumero())
-                    .complemento(enderecoRequest.getComplemento())
-                    .bairro(enderecoRequest.getBairro())
-                    .cidade(enderecoRequest.getCidade())
-                    .uf(enderecoRequest.getUf())
-                    .cep(enderecoRequest.getCep())
+                    .logradouro(er.logradouro())
+                    .numero(er.numero())
+                    .complemento(er.complemento())
+                    .bairro(er.bairro())
+                    .cidade(er.cidade())
+                    .uf(er.uf())
+                    .cep(er.cep())
                     .build();
         }
 
         return Correntista.builder()
-                .nomeCompleto(dto.getNomeCompleto())
+                .nomeCompleto(dto.nomeCompleto())
                 .endereco(endereco)
-                .tipoIdentificador(dto.getTipoIdentificador())
-                .numeroIdentificador(dto.getNumeroIdentificador())
+                .tipoIdentificador(dto.tipoIdentificador())
+                .numeroIdentificador(dto.numeroIdentificador())
                 .build();
     }
 
     public CorrentistaResumoResponse toResumoResponse(Correntista entity) {
-
-        return CorrentistaResumoResponse.builder()
-                .id(entity.getId())
-                .nomeCompleto(entity.getNomeCompleto())
-                .tipoIdentificador(entity.getTipoIdentificador())
-                .numeroIdentificador(entity.getNumeroIdentificador())
-                .build();
+        return new CorrentistaResumoResponse(
+                entity.getId(),
+                entity.getNomeCompleto(),
+                entity.getTipoIdentificador(),
+                entity.getNumeroIdentificador()
+        );
     }
 
     public CorrentistaResponse toResponse(Correntista entity) {
@@ -65,26 +62,24 @@ public class CorrentistaMapper {
                     .toList()
                 : List.of();
 
-        return CorrentistaResponse.builder()
-                .id(entity.getId())
-                .nomeCompleto(entity.getNomeCompleto())
-                .endereco(entity.getEndereco())
-                .tipoIdentificador(entity.getTipoIdentificador())
-                .numeroIdentificador(entity.getNumeroIdentificador())
-                .dataCadastro(entity.getDataCadastro())
-                .contas(contasResponse)
-                .build();
+        return new CorrentistaResponse(
+                entity.getId(),
+                entity.getNomeCompleto(),
+                entity.getEndereco(),
+                entity.getTipoIdentificador(),
+                entity.getNumeroIdentificador(),
+                entity.getDataCadastro(),
+                contasResponse
+        );
     }
 
     public void updateEntity(CorrentistaAtualizacaoRequest dto, Correntista entity) {
-
-        if (dto.getNomeCompleto() != null) {
-            entity.setNomeCompleto(dto.getNomeCompleto());
+        if (dto.nomeCompleto() != null) {
+            entity.setNomeCompleto(dto.nomeCompleto());
         }
 
-        if (dto.getEndereco() != null) {
-            EnderecoAtualizacaoRequest enderecoRequest = dto.getEndereco();
-
+        if (dto.endereco() != null) {
+            EnderecoAtualizacaoRequest er = dto.endereco();
             Endereco endereco = entity.getEndereco();
 
             if (endereco == null) {
@@ -92,49 +87,28 @@ public class CorrentistaMapper {
                 entity.setEndereco(endereco);
             }
 
-            if (enderecoRequest.getLogradouro() != null) {
-                endereco.setLogradouro(enderecoRequest.getLogradouro());
-            }
-
-            if (enderecoRequest.getNumero() != null) {
-                endereco.setNumero(enderecoRequest.getNumero());
-            }
-
-            if (enderecoRequest.getComplemento() != null) {
-                endereco.setComplemento(enderecoRequest.getComplemento());
-            }
-
-            if (enderecoRequest.getBairro() != null) {
-                endereco.setBairro(enderecoRequest.getBairro());
-            }
-
-            if (enderecoRequest.getCidade() != null) {
-                endereco.setCidade(enderecoRequest.getCidade());
-            }
-
-            if (enderecoRequest.getUf() != null) {
-                endereco.setUf(enderecoRequest.getUf());
-            }
-
-            if (enderecoRequest.getCep() != null) {
-                endereco.setCep(enderecoRequest.getCep());
-            }
+            if (er.logradouro() != null) endereco.setLogradouro(er.logradouro());
+            if (er.numero() != null) endereco.setNumero(er.numero());
+            if (er.complemento() != null) endereco.setComplemento(er.complemento());
+            if (er.bairro() != null) endereco.setBairro(er.bairro());
+            if (er.cidade() != null) endereco.setCidade(er.cidade());
+            if (er.uf() != null) endereco.setUf(er.uf());
+            if (er.cep() != null) endereco.setCep(er.cep());
         }
 
-        if (dto.getTipoIdentificador() != null) {
-            entity.setTipoIdentificador(dto.getTipoIdentificador());
+        if (dto.tipoIdentificador() != null) {
+            entity.setTipoIdentificador(dto.tipoIdentificador());
 
-            if (dto.getNumeroIdentificador() != null
-                    && ValidacaoUtil.isIdentificadorValid(dto.getTipoIdentificador(), dto.getNumeroIdentificador())) {
-                entity.setNumeroIdentificador(dto.getNumeroIdentificador());
+            if (dto.numeroIdentificador() != null
+                    && ValidacaoUtil.isIdentificadorValid(dto.tipoIdentificador(), dto.numeroIdentificador())) {
+                entity.setNumeroIdentificador(dto.numeroIdentificador());
             } else {
                 throw new IdentificadorInvalidoException(
-                        dto.getTipoIdentificador().name(),
-                        dto.getNumeroIdentificador()
+                        dto.tipoIdentificador().name(),
+                        dto.numeroIdentificador()
                 );
             }
         }
-
     }
 
 }

@@ -52,14 +52,29 @@
               "script": {
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('É array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                  "pm.test('É paginado', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('content').that.is.an('array');",
+                  "  pm.expect(json).to.have.property('totalElements');",
+                  "  pm.expect(json).to.have.property('totalPages');",
+                  "  pm.expect(json).to.have.property('number');",
+                  "});"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/correntistas", "host": ["{{baseUrl}}"], "path": ["api", "correntistas"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/correntistas?page=0&size=10&sort=id,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "correntistas"],
+              "query": [
+                { "key": "page", "value": "0", "description": "Número da página (0-indexed)" },
+                { "key": "size", "value": "10", "description": "Tamanho da página" },
+                { "key": "sort", "value": "id,asc", "description": "Ordenação" }
+              ]
+            }
           }
         },
         {
@@ -70,14 +85,27 @@
               "script": {
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Contém contas', () => pm.expect(pm.response.json()[0]).to.have.property('contas'));"
+                  "pm.test('É paginado com contas', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('content').that.is.an('array');",
+                  "  pm.expect(json.content[0]).to.have.property('contas');",
+                  "});"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/correntistas/completos", "host": ["{{baseUrl}}"], "path": ["api", "correntistas", "completos"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/correntistas/completos?page=0&size=10&sort=id,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "correntistas", "completos"],
+              "query": [
+                { "key": "page", "value": "0", "description": "Número da página (0-indexed)" },
+                { "key": "size", "value": "10", "description": "Tamanho da página" },
+                { "key": "sort", "value": "id,asc", "description": "Ordenação" }
+              ]
+            }
           }
         },
         {
@@ -233,14 +261,29 @@
               "script": {
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('É array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                  "pm.test('É paginado', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('content').that.is.an('array');",
+                  "  pm.expect(json).to.have.property('totalElements');",
+                  "  pm.expect(json).to.have.property('totalPages');",
+                  "  pm.expect(json).to.have.property('number');",
+                  "});"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/contas", "host": ["{{baseUrl}}"], "path": ["api", "contas"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/contas?page=0&size=10&sort=id,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contas"],
+              "query": [
+                { "key": "page", "value": "0", "description": "Número da página (0-indexed)" },
+                { "key": "size", "value": "10", "description": "Tamanho da página" },
+                { "key": "sort", "value": "id,asc", "description": "Ordenação" }
+              ]
+            }
           }
         },
         {
