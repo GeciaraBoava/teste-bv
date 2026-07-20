@@ -21,8 +21,8 @@ class ValidacaoUtilTest {
     }
 
     @Test
-    void isIdentificadorValid_deveRetornarTrue_CpfComLetras() {
-        assertTrue(ValidacaoUtil.isIdentificadorValid(ETipoIdentificador.CPF, "12345abcde"));
+    void isIdentificadorValid_deveRetornarFalse_CpfComLetras() {
+        assertFalse(ValidacaoUtil.isIdentificadorValid(ETipoIdentificador.CPF, "12345abcde"));
     }
 
     @ParameterizedTest

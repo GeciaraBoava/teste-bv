@@ -12,14 +12,11 @@ public final class ValidacaoUtil {
             return false;
         }
 
-        if (ETipoIdentificador.CPF.equals(tipo)
-                && identificador.length() != 11
-                && identificador.matches("\\d+")) {
-            return false;
-        } else if (ETipoIdentificador.CNPJ.equals(tipo) && identificador.length() != 14) {
-            return false;
-        } else {
-            return true;
+        if (ETipoIdentificador.CPF.equals(tipo)) {
+            return identificador.length() == 11 && identificador.matches("\\d+");
+        } else if (ETipoIdentificador.CNPJ.equals(tipo)) {
+            return identificador.length() == 14 && identificador.matches("[a-zA-Z0-9]+");
         }
+        return true;
     }
 }
