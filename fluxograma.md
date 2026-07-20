@@ -196,7 +196,28 @@ flowchart TD
 
 ---
 
-## 6. Cadastro de Conta (POST /api/contas)
+## 6. Listar Contas (GET /api/contas)
+
+```mermaid
+flowchart TD
+    START([GET /api/contas]) --> AUTH{Autenticado?<br/>Basic Auth}
+    AUTH -->|Não| ERR401[401 Unauthorized]
+    AUTH -->|Sim| FIND[Repository.findAll<br/>busca todas as contas]
+
+    FIND --> MAP[ContaMapper.toResponse<br/>converte cada Entity → Response]
+    MAP --> OK([200 OK<br/>Lista de ContaResponse])
+
+    ERR401 --> HANDLER[ApiExceptionHandler]
+    HANDLER --> CLIENT([Cliente recebe erro])
+
+    style ERR401 fill:#f8d7da
+    style OK fill:#d4edda
+    style FIND fill:#e7f3ff
+```
+
+---
+
+## 7. Cadastro de Conta (POST /api/contas)
 
 ```mermaid
 flowchart TD
@@ -230,7 +251,7 @@ flowchart TD
 
 ---
 
-## 7. Atualização de Conta (PUT /api/contas/{id})
+## 8. Atualização de Conta (PUT /api/contas/{id})
 
 ```mermaid
 flowchart TD
@@ -256,7 +277,7 @@ flowchart TD
 
 ---
 
-## 8. Encerramento de Conta (DELETE /api/contas/{id})
+## 9. Encerramento de Conta (DELETE /api/contas/{id})
 
 ```mermaid
 flowchart TD
@@ -282,7 +303,7 @@ flowchart TD
 
 ---
 
-## 9. Tratamento de Exceções (ApiExceptionHandler)
+## 10. Tratamento de Exceções (ApiExceptionHandler)
 
 ```mermaid
 flowchart TD
@@ -321,7 +342,7 @@ flowchart TD
 
 ---
 
-## 10. Validação de Identificadores (ValidacaoUtil)
+## 11. Validação de Identificadores (ValidacaoUtil)
 
 ```mermaid
 flowchart LR
@@ -364,7 +385,7 @@ flowchart LR
 
 ---
 
-## 11. Segurança (HTTP Basic Auth)
+## 12. Segurança (HTTP Basic Auth)
 
 ```mermaid
 flowchart TD
@@ -397,7 +418,7 @@ flowchart TD
 
 ---
 
-## 12. Diagrama de Classes (Relacionamentos)
+## 13. Diagrama de Classes (Relacionamentos)
 
 ```mermaid
 classDiagram
@@ -476,7 +497,7 @@ classDiagram
 
 ---
 
-## 13. Fluxo de DTOs (Request → Entity → Response)
+## 14. Fluxo de DTOs (Request → Entity → Response)
 
 ```mermaid
 flowchart LR

@@ -97,7 +97,7 @@ public class CorrentistaController {
                                                     "numero": "1578",
                                                     "bairro": "Consolação",
                                                     "cidade": "São Paulo",
-                                                    "estado": "SP",
+                                                    "uf": "SP",
                                                     "cep": "01310100"
                                                 },
                                                 "tipoIdentificador": "CPF",
@@ -148,7 +148,7 @@ public class CorrentistaController {
                                                             "numero": "1000",
                                                             "bairro": "Bela Vista",
                                                             "cidade": "São Paulo",
-                                                            "estado": "SP",
+                                                            "uf": "SP",
                                                             "cep": "01310100"
                                                         }
                                                     }

@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/contas")
 @RequiredArgsConstructor
@@ -27,6 +29,19 @@ import org.springframework.web.bind.annotation.*;
 public class ContaController {
 
     private final ContaService contaService;
+
+    @GetMapping
+    @Operation(
+            summary = "Listar todas as contas",
+            description = "Retorna a lista de todas as contas cadastradas com todos os dados.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso",
+                    content = @Content(schema = @Schema(implementation = ContaResponse.class)))
+    })
+    public ResponseEntity<List<ContaResponse>> listarTodos() {
+        List<ContaResponse> contas = contaService.listarTodos();
+        return ResponseEntity.ok(contas);
+    }
 
     @PostMapping
     @Operation(

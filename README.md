@@ -7,7 +7,7 @@ API REST para gerenciamento (CRUD) de dados de correntistas de uma instituição
 
 ### Funcionalidades Implementadas
 - **Correntistas**: CRUD completo (listar, buscar, cadastrar, atualizar, excluir)
-- **Contas**: CRUD completo (cadastrar, atualizar dados, encerrar conta com soft delete)
+- **Contas**: CRUD completo (listar, cadastrar, atualizar dados, encerrar conta com soft delete)
 - **Relacionamento bidirecional**: Correntista ↔ Conta com cascade delete
 - **Segurança**: HTTP Basic Auth (admin/admin123) em todos os endpoints, exceto Swagger
 
@@ -125,6 +125,11 @@ DELETE http://localhost:8080/api/correntistas/1
 
 ### Endpoints de Contas
 
+#### Listar todas as contas
+```bash
+GET http://localhost:8080/api/contas
+```
+
 #### Cadastrar nova conta
 ```bash
 POST http://localhost:8080/api/contas
@@ -160,7 +165,7 @@ Acesse: http://localhost:8080/swagger-ui.html
 
 ### Diagramas do Projeto
 
-O arquivo `fluxograma.md` contém 13 diagramas Mermaid com os fluxos completos do projeto (arquitetura, ciclo de vida, cadastro, atualização, exclusão, tratamento de exceções, validação de identificadores, segurança, diagrama de classes e fluxo de DTOs).
+O arquivo `fluxograma.md` contém 14 diagramas Mermaid com os fluxos completos do projeto (arquitetura, ciclo de vida, cadastro, atualização, exclusão, listagem, tratamento de exceções, validação de identificadores, segurança, diagrama de classes e fluxo de DTOs).
 
 Para visualizar os diagramas no IntelliJ IDEA, instale o plugin **Mermaid**:
 
@@ -291,19 +296,21 @@ src/main/resources/
 15. Excluir com sucesso
 16. Excluir correntista não encontrado
 
-#### Testes Unitários (ContaServiceTest) — 12 testes
-1. Cadastrar conta com sucesso
-2. Status padrão ATIVA quando não informado
-3. Manter status informado quando fornecido
-4. Exceção quando correntista não encontrado
-5. Atualizar com sucesso (saldo)
-6. Atualizar múltiplos campos
-7. Atualizar apenas um campo
-8. Manter campos não informados na atualização
-9. Exceção quando conta não encontrada
-10. Encerrar conta (soft delete)
-11. Dados originais mantidos ao encerrar
-12. Exceção quando conta não encontrada no encerramento
+#### Testes Unitários (ContaServiceTest) — 14 testes
+1. Listar contas com dados
+2. Listar contas vazia
+3. Cadastrar conta com sucesso
+4. Status padrão ATIVA quando não informado
+5. Manter status informado quando fornecido
+6. Exceção quando correntista não encontrado
+7. Atualizar com sucesso (saldo)
+8. Atualizar múltiplos campos
+9. Atualizar apenas um campo
+10. Manter campos não informados na atualização
+11. Exceção quando conta não encontrada
+12. Encerrar conta (soft delete)
+13. Dados originais mantidos ao encerrar
+14. Exceção quando conta não encontrada no encerramento
 
 #### Testes de Controller (CorrentistaControllerTest) — 16 testes
 1. Listar correntistas (200)
@@ -323,19 +330,21 @@ src/main/resources/
 15. Excluir com sucesso (204)
 16. Excluir não encontrado (404)
 
-#### Testes de Controller (ContaControllerTest) — 11 testes
-1. Cadastrar conta com sucesso (201)
-2. Cadastrar com correntista inexistente (404)
-3. Cadastrar com dados inválidos (400) — com validação de detalhes
-4. Cadastrar com tipo inválido (400)
-5. Cadastrar com campo desconhecido (400)
-6. Cadastrar com body vazio (400)
-7. Atualizar conta com sucesso (200)
-8. Atualizar conta inexistente (404)
-9. Atualizar body vazio (400)
-10. Atualizar campo desconhecido (400)
-11. Encerrar conta com sucesso (204)
-12. Encerrar conta inexistente (404)
+#### Testes de Controller (ContaControllerTest) — 14 testes
+1. Listar contas (200)
+2. Listar contas vazia (200)
+3. Cadastrar conta com sucesso (201)
+4. Cadastrar com correntista inexistente (404)
+5. Cadastrar com dados inválidos (400) — com validação de detalhes
+6. Cadastrar com tipo inválido (400)
+7. Cadastrar com campo desconhecido (400)
+8. Cadastrar com body vazio (400)
+9. Atualizar conta com sucesso (200)
+10. Atualizar conta inexistente (404)
+11. Atualizar body vazio (400)
+12. Atualizar campo desconhecido (400)
+13. Encerrar conta com sucesso (204)
+14. Encerrar conta inexistente (404)
 
 #### Testes de Mapper (CorrentistaMapperTest) — 12 testes
 1. toEntity converte todos os campos (incluindo complemento)
@@ -390,20 +399,22 @@ src/main/resources/
 8. Atualização de endereço parcial
 9. Rejeição de body vazio
 
-#### Testes de Integração (ContaIntegrationTest) — 13 testes
-1. Cadastrar conta com sucesso
-2. Status padrão ATIVA quando não informado
-3. Saldo inicializado em zero
-4. Correntista inexistente (404)
-5. Dados inválidos (400)
-6. Tipo inválido (400)
-7. Body vazio (400)
-8. Atualizar conta com sucesso
-9. Rejeição de body vazio
-10. Manter campos não informados na atualização
-11. Conta inexistente na atualização (404)
-12. Encerrar conta (soft delete)
-13. Encerrar conta inexistente (404)
+#### Testes de Integração (ContaIntegrationTest) — 15 testes
+1. Listar contas com dados
+2. Listar contas vazia
+3. Cadastrar conta com sucesso
+4. Status padrão ATIVA quando não informado
+5. Saldo inicializado em zero
+6. Correntista inexistente (404)
+7. Dados inválidos (400)
+8. Tipo inválido (400)
+9. Body vazio (400)
+10. Atualizar conta com sucesso
+11. Rejeição de body vazio
+12. Manter campos não informados na atualização
+13. Conta inexistente na atualização (404)
+14. Encerrar conta (soft delete)
+15. Encerrar conta inexistente (404)
 
 ### Como Executar os Testes
 ```bash
@@ -454,22 +465,22 @@ Abaixo são descritas algumas:
 ## 6. Evidência da Execução dos Testes
 
 ```
-[INFO] Tests run: 116, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 122, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
-Todos os 116 testes foram executados com sucesso:
+Todos os 122 testes foram executados com sucesso:
 - 1 teste de contexto (GeciaraApplicationTests)
 - 16 testes unitários de service (CorrentistaServiceTest)
-- 12 testes unitários de service (ContaServiceTest)
+- 14 testes unitários de service (ContaServiceTest)
 - 16 testes de controller (CorrentistaControllerTest)
-- 11 testes de controller (ContaControllerTest)
+- 14 testes de controller (ContaControllerTest)
 - 12 testes de mapper (CorrentistaMapperTest)
 - 6 testes de mapper (ContaMapperTest)
 - 12 testes de validação (ValidacaoUtilTest)
 - 7 testes de segurança (SecurityIntegrationTest)
 - 9 testes de integração (CorrentistaIntegrationTest)
-- 13 testes de integração (ContaIntegrationTest)
+- 15 testes de integração (ContaIntegrationTest)
 
 ## 7. Implementações futuras
 - Cadastro de documentação completa (RG, CPF/CNPJ, inscrições estadual/municipal)

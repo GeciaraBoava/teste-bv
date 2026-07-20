@@ -70,6 +70,38 @@ class ContaIntegrationTest {
     }
 
     @Test
+    void listarTodos_deveRetornarListaDeContas() throws Exception {
+        var request = """
+                {
+                    "correntistaId": %d,
+                    "numero": "456789",
+                    "agencia": 1234,
+                    "tipo": "CORRENTE"
+                }
+                """.formatted(correntistaId);
+
+        mockMvc.perform(post("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$[0].numero", is("456789")))
+                .andExpect(jsonPath("$[0].correntistaId", is(correntistaId.intValue())));
+    }
+
+    @Test
+    void listarTodos_deveRetornar200_ListaVazia() throws Exception {
+        mockMvc.perform(get("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
     void cadastrar_deveCadastrarConta_QuandoDadosValidos() throws Exception {
         var request = """
                 {

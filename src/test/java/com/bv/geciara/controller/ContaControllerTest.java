@@ -18,8 +18,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -49,6 +50,28 @@ class ContaControllerTest {
                 .status(EStatusConta.ATIVA)
                 .correntistaId(1L)
                 .build();
+    }
+
+    @Test
+    void listarTodos_deveRetornar200_ComDados() throws Exception {
+        when(contaService.listarTodos()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].numero", is("456789")))
+                .andExpect(jsonPath("$[0].correntistaId", is(1)));
+    }
+
+    @Test
+    void listarTodos_deveRetornar200_ListaVazia() throws Exception {
+        when(contaService.listarTodos()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test

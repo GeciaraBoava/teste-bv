@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ContaService {
@@ -22,6 +24,13 @@ public class ContaService {
     private final ContaRepository contaRepository;
     private final CorrentistaRepository correntistaRepository;
     private final ContaMapper contaMapper;
+
+    @Transactional(readOnly = true)
+    public List<ContaResponse> listarTodos() {
+        return contaRepository.findAll().stream()
+                .map(contaMapper::toResponse)
+                .toList();
+    }
 
     @Transactional
     public ContaResponse cadastrar(ContaRequest request) {

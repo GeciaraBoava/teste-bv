@@ -43,7 +43,7 @@ public class Endereco {
     @Column(name = "endereco_cidade")
     private String cidade;
 
-    @NotBlank(message = "Estado é obrigatório")
+    @NotBlank(message = "Uf é obrigatório")
     @Size(min = 2, max = 2, message = "UF deve ter exatamente 2 caracteres")
     @Column(name = "endereco_uf")
     private String uf;

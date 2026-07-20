@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -284,5 +285,29 @@ class ContaServiceTest {
         assertEquals(9999, conta.getAgencia());
         assertEquals("456789", conta.getNumero());
         verify(contaRepository).save(conta);
+    }
+
+    @Test
+    void listarTodos_deveRetornarListaDeContas() {
+        when(contaRepository.findAll()).thenReturn(List.of(conta));
+        when(contaMapper.toResponse(conta)).thenReturn(response);
+
+        List<ContaResponse> resultado = contaService.listarTodos();
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("456789", resultado.get(0).getNumero());
+        verify(contaRepository).findAll();
+    }
+
+    @Test
+    void listarTodos_deveRetornarListaVazia_QuandoNaoExistirContas() {
+        when(contaRepository.findAll()).thenReturn(List.of());
+
+        List<ContaResponse> resultado = contaService.listarTodos();
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+        verify(contaRepository).findAll();
     }
 }

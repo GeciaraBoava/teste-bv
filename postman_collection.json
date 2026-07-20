@@ -226,6 +226,24 @@
       "name": "Contas",
       "item": [
         {
+          "name": "GET - Listar Todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('É array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/contas", "host": ["{{baseUrl}}"], "path": ["api", "contas"] }
+          }
+        },
+        {
           "name": "POST - Cadastrar Conta",
           "event": [
             {
