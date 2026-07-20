@@ -28,6 +28,11 @@ public class ContaRequest {
     @NotNull(message = "Agência é obrigatória")
     private Integer agencia;
 
+    @Schema(description = "Código do banco (3 dígitos)", example = "001")
+    @NotNull(message = "Código do banco é obrigatório")
+    @jakarta.validation.constraints.Size(min = 3, max = 3, message = "Código do banco deve ter exatamente 3 caracteres")
+    private String codigoBanco;
+
     @Schema(description = "Tipo da conta", example = "CORRENTE")
     @NotNull(message = "Tipo da conta é obrigatório")
     private ETipoConta tipo;

@@ -60,6 +60,7 @@ class ContaServiceTest {
                 .id(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
@@ -70,6 +71,7 @@ class ContaServiceTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .build();
 
@@ -77,6 +79,7 @@ class ContaServiceTest {
                 .id(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
@@ -105,12 +108,14 @@ class ContaServiceTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .build();
 
         Conta contaSemStatus = Conta.builder()
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .saldo(new BigDecimal("5000.00"))
                 .correntista(correntista)
@@ -134,6 +139,7 @@ class ContaServiceTest {
                 .correntistaId(99L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .build();
 
@@ -199,6 +205,7 @@ class ContaServiceTest {
         assertEquals(EStatusConta.ENCERRADA, conta.getStatus());
         assertEquals("456789", conta.getNumero());
         assertEquals(1234, conta.getAgencia());
+        assertEquals("001", conta.getCodigoBanco());
         assertEquals(new BigDecimal("5000.00"), conta.getSaldo());
     }
 
@@ -208,12 +215,14 @@ class ContaServiceTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .build();
 
         Conta contaComStatus = Conta.builder()
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.BLOQUEADA)
@@ -235,6 +244,7 @@ class ContaServiceTest {
         ContaAtualizacaoRequest multiRequest = ContaAtualizacaoRequest.builder()
                 .numero("999999")
                 .agencia(5678)
+                .codigoBanco("237")
                 .tipo(ETipoConta.POUPANCA)
                 .saldo(new BigDecimal("10000.00"))
                 .build();
@@ -248,6 +258,7 @@ class ContaServiceTest {
         assertNotNull(resultado);
         assertEquals("999999", conta.getNumero());
         assertEquals(5678, conta.getAgencia());
+        assertEquals("237", conta.getCodigoBanco());
         assertEquals(ETipoConta.POUPANCA, conta.getTipo());
         assertEquals(new BigDecimal("10000.00"), conta.getSaldo());
         verify(contaRepository).save(conta);
@@ -266,6 +277,7 @@ class ContaServiceTest {
 
         assertEquals("456789", conta.getNumero());
         assertEquals(1234, conta.getAgencia());
+        assertEquals("001", conta.getCodigoBanco());
         assertEquals(ETipoConta.CORRENTE, conta.getTipo());
         assertEquals(new BigDecimal("5000.00"), conta.getSaldo());
     }

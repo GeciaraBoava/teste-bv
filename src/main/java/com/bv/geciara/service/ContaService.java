@@ -62,6 +62,10 @@ public class ContaService {
             conta.setAgencia(request.getAgencia());
         }
 
+        if (request.getCodigoBanco() != null) {
+            conta.setCodigoBanco(request.getCodigoBanco());
+        }
+
         if (request.getTipo() != null) {
             conta.setTipo(request.getTipo());
         }

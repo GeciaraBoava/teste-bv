@@ -265,7 +265,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"correntistaId\": {{correntistaId}},\n  \"numero\": \"456789\",\n  \"agencia\": 1234,\n  \"tipo\": \"CORRENTE\"\n}"
+              "raw": "{\n  \"correntistaId\": {{correntistaId}},\n  \"numero\": \"456789\",\n  \"agencia\": 1234,\n  \"codigoBanco\": \"001\",\n  \"tipo\": \"CORRENTE\"\n}"
             }
           }
         },

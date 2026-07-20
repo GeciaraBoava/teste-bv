@@ -76,6 +76,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
@@ -90,6 +91,7 @@ class ContaIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$[0].numero", is("456789")))
+                .andExpect(jsonPath("$[0].codigoBanco", is("001")))
                 .andExpect(jsonPath("$[0].correntistaId", is(correntistaId.intValue())));
     }
 
@@ -108,6 +110,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
@@ -117,6 +120,7 @@ class ContaIntegrationTest {
                         .content(request))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.numero", is("456789")))
+                .andExpect(jsonPath("$.codigoBanco", is("001")))
                 .andExpect(jsonPath("$.correntistaId", is(correntistaId.intValue())))
                 .andExpect(jsonPath("$.status", is("ATIVA")))
                 .andExpect(jsonPath("$.saldo", is(0)));
@@ -129,6 +133,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
@@ -147,6 +152,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "789012",
                     "agencia": 5678,
+                    "codigoBanco": "001",
                     "tipo": "POUPANCA"
                 }
                 """.formatted(correntistaId);
@@ -166,6 +172,7 @@ class ContaIntegrationTest {
                     "correntistaId": 99999,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """;
@@ -183,6 +190,7 @@ class ContaIntegrationTest {
                     "correntistaId": null,
                     "numero": "",
                     "agencia": null,
+                    "codigoBanco": null,
                     "tipo": null
                 }
                 """;
@@ -200,6 +208,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "INVALIDO"
                 }
                 """.formatted(correntistaId);
@@ -225,6 +234,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
@@ -260,6 +270,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
@@ -286,6 +297,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);
@@ -333,6 +345,7 @@ class ContaIntegrationTest {
                     "correntistaId": %d,
                     "numero": "456789",
                     "agencia": 1234,
+                    "codigoBanco": "001",
                     "tipo": "CORRENTE"
                 }
                 """.formatted(correntistaId);

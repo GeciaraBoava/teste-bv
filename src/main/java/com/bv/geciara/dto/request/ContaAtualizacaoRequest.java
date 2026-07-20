@@ -24,6 +24,10 @@ public class ContaAtualizacaoRequest {
     @Schema(description = "Número da agência", example = "1234")
     private Integer agencia;
 
+    @Schema(description = "Código do banco (3 dígitos)", example = "001")
+    @Size(min = 3, max = 3, message = "Código do banco deve ter exatamente 3 caracteres")
+    private String codigoBanco;
+
     @Schema(description = "Tipo da conta", example = "CORRENTE")
     private ETipoConta tipo;
 

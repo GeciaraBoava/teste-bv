@@ -45,6 +45,7 @@ class ContaControllerTest {
                 .id(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
@@ -85,6 +86,7 @@ class ContaControllerTest {
                                     "correntistaId": 1,
                                     "numero": "456789",
                                     "agencia": 1234,
+                                    "codigoBanco": "001",
                                     "tipo": "CORRENTE"
                                 }
                                 """))
@@ -106,6 +108,7 @@ class ContaControllerTest {
                                     "correntistaId": 99,
                                     "numero": "456789",
                                     "agencia": 1234,
+                                    "codigoBanco": "001",
                                     "tipo": "CORRENTE"
                                 }
                                 """))
@@ -139,6 +142,7 @@ class ContaControllerTest {
                                     "correntistaId": 1,
                                     "numero": "456789",
                                     "agencia": 1234,
+                                    "codigoBanco": "001",
                                     "tipo": "INVALIDO"
                                 }
                                 """))

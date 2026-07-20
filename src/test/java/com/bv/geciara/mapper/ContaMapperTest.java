@@ -39,6 +39,7 @@ class ContaMapperTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .build();
 
@@ -47,6 +48,7 @@ class ContaMapperTest {
         assertNotNull(entity);
         assertEquals("456789", entity.getNumero());
         assertEquals(1234, entity.getAgencia());
+        assertEquals("001", entity.getCodigoBanco());
         assertEquals(ETipoConta.CORRENTE, entity.getTipo());
         assertEquals(BigDecimal.ZERO, entity.getSaldo());
         assertEquals(EStatusConta.ATIVA, entity.getStatus());
@@ -59,6 +61,7 @@ class ContaMapperTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.POUPANCA)
                 .build();
 
@@ -67,6 +70,7 @@ class ContaMapperTest {
         assertEquals(correntista.getId(), entity.getCorrentista().getId());
         assertEquals(ETipoConta.POUPANCA, entity.getTipo());
         assertEquals(BigDecimal.ZERO, entity.getSaldo());
+        assertEquals("001", entity.getCodigoBanco());
     }
 
     @Test
@@ -75,6 +79,7 @@ class ContaMapperTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .build();
 
@@ -82,6 +87,7 @@ class ContaMapperTest {
 
         assertEquals(EStatusConta.ATIVA, entity.getStatus());
         assertEquals(BigDecimal.ZERO, entity.getSaldo());
+        assertEquals("001", entity.getCodigoBanco());
     }
 
     @Test
@@ -90,12 +96,14 @@ class ContaMapperTest {
                 .correntistaId(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.POUPANCA)
                 .build();
 
         Conta entity = contaMapper.toEntity(request, correntista);
 
         assertEquals(BigDecimal.ZERO, entity.getSaldo());
+        assertEquals("001", entity.getCodigoBanco());
     }
 
     @Test
@@ -107,6 +115,7 @@ class ContaMapperTest {
                 .id(1L)
                 .numero("456789")
                 .agencia(1234)
+                .codigoBanco("001")
                 .tipo(ETipoConta.CORRENTE)
                 .saldo(new BigDecimal("5000.00"))
                 .status(EStatusConta.ATIVA)
@@ -121,6 +130,7 @@ class ContaMapperTest {
         assertEquals(1L, response.getId());
         assertEquals("456789", response.getNumero());
         assertEquals(1234, response.getAgencia());
+        assertEquals("001", response.getCodigoBanco());
         assertEquals(ETipoConta.CORRENTE, response.getTipo());
         assertEquals(new BigDecimal("5000.00"), response.getSaldo());
         assertEquals(EStatusConta.ATIVA, response.getStatus());
@@ -142,6 +152,7 @@ class ContaMapperTest {
                 .id(2L)
                 .numero("789012")
                 .agencia(5678)
+                .codigoBanco("237")
                 .tipo(ETipoConta.POUPANCA)
                 .saldo(new BigDecimal("2500.00"))
                 .status(EStatusConta.BLOQUEADA)
@@ -152,5 +163,6 @@ class ContaMapperTest {
 
         assertEquals(42L, response.getCorrentistaId());
         assertEquals(EStatusConta.BLOQUEADA, response.getStatus());
+        assertEquals("237", response.getCodigoBanco());
     }
 }

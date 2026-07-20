@@ -31,6 +31,9 @@ public class Conta extends EntidadeAuditavel {
     @Column(nullable = false)
     private Integer agencia;
 
+    @Column(nullable = false, length = 3)
+    private String codigoBanco;
+
     @Enumerated(EnumType.STRING)
     private ETipoConta tipo;
 

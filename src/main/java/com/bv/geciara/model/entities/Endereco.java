@@ -33,7 +33,6 @@ public class Endereco {
     @Column(name = "endereco_bairro")
     private String bairro;
 
-    @NotBlank(message = "Cidade é obrigatória")
     @Size(max = 50, message = "Complemento deve ter no máximo 50 caracteres")
     @Column(name = "endereco_complemento")
     private String complemento;

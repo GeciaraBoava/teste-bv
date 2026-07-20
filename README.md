@@ -139,6 +139,7 @@ Content-Type: application/json
     "correntistaId": 1,
     "numero": "456789",
     "agencia": 1234,
+    "codigoBanco": "001",
     "tipo": "CORRENTE"
 }
 ```

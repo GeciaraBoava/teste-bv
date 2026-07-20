@@ -439,6 +439,7 @@ classDiagram
         +Long id
         +String numero
         +Integer agencia
+        +String codigoBanco
         +ETipoConta tipo
         +BigDecimal saldo
         +EStatusConta status
@@ -517,7 +518,7 @@ flowchart LR
     end
 
     subgraph "Conta - Criação"
-        CT1[ContaRequest<br/>correntistaId, numero, agencia, tipo] --> CTM1[ContaMapper.toEntity<br/>saldo=ZERO, status=ATIVA]
+        CT1[ContaRequest<br/>correntistaId, numero, agencia, codigoBanco, tipo] --> CTM1[ContaMapper.toEntity<br/>saldo=ZERO, status=ATIVA]
         CTM1 --> CTE[Conta Entity]
     end
 

@@ -25,6 +25,9 @@ public class ContaResponse {
     @Schema(description = "Número da agência", example = "1234")
     private Integer agencia;
 
+    @Schema(description = "Código do banco", example = "001")
+    private String codigoBanco;
+
     @Schema(description = "Tipo da conta", example = "CORRENTE")
     private ETipoConta tipo;
 
