@@ -369,4 +369,80 @@ class ContaIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void listarTodos_devePaginarCorretamente() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            mockMvc.perform(post("/api/contas")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                        "correntistaId": %d,
+                                        "numero": "90000%d",
+                                        "agencia": 1234,
+                                        "codigoBanco": "001",
+                                        "tipo": "CORRENTE"
+                                    }
+                                    """.formatted(correntistaId, i)))
+                    .andExpect(status().isCreated());
+        }
+
+        mockMvc.perform(get("/api/contas")
+                        .param("page", "0")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalPages", is(2)))
+                .andExpect(jsonPath("$.size", is(2)))
+                .andExpect(jsonPath("$.number", is(0)))
+                .andExpect(jsonPath("$.first", is(true)))
+                .andExpect(jsonPath("$.last", is(false)));
+
+        mockMvc.perform(get("/api/contas")
+                        .param("page", "1")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.number", is(1)))
+                .andExpect(jsonPath("$.first", is(false)))
+                .andExpect(jsonPath("$.last", is(true)));
+    }
+
+    @Test
+    void listarTodos_deveOrdenarPorNumero() throws Exception {
+        mockMvc.perform(post("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "correntistaId": %d,
+                                    "numero": "999999",
+                                    "agencia": 1234,
+                                    "codigoBanco": "001",
+                                    "tipo": "CORRENTE"
+                                }
+                                """.formatted(correntistaId)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/contas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "correntistaId": %d,
+                                    "numero": "000001",
+                                    "agencia": 5678,
+                                    "codigoBanco": "341",
+                                    "tipo": "POUPANCA"
+                                }
+                                """.formatted(correntistaId)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/contas")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "numero,asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].numero", is("000001")))
+                .andExpect(jsonPath("$.content[1].numero", is("999999")));
+    }
 }

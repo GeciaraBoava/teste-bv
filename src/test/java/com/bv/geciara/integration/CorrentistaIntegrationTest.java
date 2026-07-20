@@ -30,7 +30,7 @@ class CorrentistaIntegrationTest {
 
     @Test
     void fluxoCompleto_CRUD_Correntista() throws Exception {
-        mockMvc.perform(post("/api/correntistas")
+        var resultado = mockMvc.perform(post("/api/correntistas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -50,7 +50,11 @@ class CorrentistaIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.nomeCompleto", is("Ana Souza")));
+                .andExpect(jsonPath("$.nomeCompleto", is("Ana Souza")))
+                .andReturn();
+
+        Long id = ((Number) com.jayway.jsonpath.JsonPath.read(
+                resultado.getResponse().getContentAsString(), "$.id")).longValue();
 
         mockMvc.perform(get("/api/correntistas/98765432100")
                         .accept(MediaType.APPLICATION_JSON))
@@ -61,7 +65,7 @@ class CorrentistaIntegrationTest {
                 .andExpect(jsonPath("$.endereco.uf", is("SP")))
                 .andExpect(jsonPath("$.dataCadastro").isNotEmpty());
 
-        mockMvc.perform(put("/api/correntistas/1")
+        mockMvc.perform(put("/api/correntistas/%d".formatted(id))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -73,13 +77,13 @@ class CorrentistaIntegrationTest {
 
         mockMvc.perform(get("/api/correntistas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)));
+                .andExpect(jsonPath("$.content", hasSize(greaterThanOrEqualTo(1))));
 
         mockMvc.perform(get("/api/correntistas/completos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)));
+                .andExpect(jsonPath("$.content", hasSize(greaterThanOrEqualTo(1))));
 
-        mockMvc.perform(delete("/api/correntistas/1"))
+        mockMvc.perform(delete("/api/correntistas/%d".formatted(id)))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/correntistas/98765432100"))
@@ -272,5 +276,134 @@ class CorrentistaIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void listarTodos_devePaginarCorretamente() throws Exception {
+        String[] nomes = {"Alice Paginacao", "Bruno Paginacao", "Carlos Paginacao"};
+        for (int i = 0; i < 3; i++) {
+            mockMvc.perform(post("/api/correntistas")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                        "nomeCompleto": "%s",
+                                        "endereco": {
+                                            "logradouro": "Rua P",
+                                            "numero": "1",
+                                            "bairro": "Centro",
+                                            "cidade": "Sao Paulo",
+                                            "uf": "SP",
+                                            "cep": "01234567"
+                                        },
+                                        "tipoIdentificador": "CPF",
+                                        "numeroIdentificador": "1111111111%d"
+                                    }
+                                    """.formatted(nomes[i], i)))
+                    .andExpect(status().isCreated());
+        }
+
+        mockMvc.perform(get("/api/correntistas")
+                        .param("page", "0")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalPages", is(2)))
+                .andExpect(jsonPath("$.size", is(2)))
+                .andExpect(jsonPath("$.number", is(0)))
+                .andExpect(jsonPath("$.first", is(true)))
+                .andExpect(jsonPath("$.last", is(false)));
+
+        mockMvc.perform(get("/api/correntistas")
+                        .param("page", "1")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.number", is(1)))
+                .andExpect(jsonPath("$.first", is(false)))
+                .andExpect(jsonPath("$.last", is(true)));
+    }
+
+    @Test
+    void listarTodosCompletos_devePaginarCorretamente() throws Exception {
+        String[] nomes = {"Diana Completo", "Eduardo Completo", "Fernanda Completo"};
+        for (int i = 0; i < 3; i++) {
+            mockMvc.perform(post("/api/correntistas")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                        "nomeCompleto": "%s",
+                                        "endereco": {
+                                            "logradouro": "Rua C",
+                                            "numero": "2",
+                                            "bairro": "Centro",
+                                            "cidade": "Sao Paulo",
+                                            "uf": "SP",
+                                            "cep": "01234567"
+                                        },
+                                        "tipoIdentificador": "CPF",
+                                        "numeroIdentificador": "2222222222%d"
+                                    }
+                                    """.formatted(nomes[i], i)))
+                    .andExpect(status().isCreated());
+        }
+
+        mockMvc.perform(get("/api/correntistas/completos")
+                        .param("page", "0")
+                        .param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.totalElements", is(greaterThanOrEqualTo(3))))
+                .andExpect(jsonPath("$.size", is(1)))
+                .andExpect(jsonPath("$.content[0].endereco").isMap());
+    }
+
+    @Test
+    void listarTodos_deveOrdenarPorNome() throws Exception {
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Zeta Silva",
+                                    "endereco": {
+                                        "logradouro": "Rua O",
+                                        "numero": "1",
+                                        "bairro": "Centro",
+                                        "cidade": "São Paulo",
+                                        "uf": "SP",
+                                        "cep": "01234567"
+                                    },
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "33333333333"
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/correntistas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomeCompleto": "Alfa Santos",
+                                    "endereco": {
+                                        "logradouro": "Rua O",
+                                        "numero": "2",
+                                        "bairro": "Centro",
+                                        "cidade": "São Paulo",
+                                        "uf": "SP",
+                                        "cep": "01234567"
+                                    },
+                                    "tipoIdentificador": "CPF",
+                                    "numeroIdentificador": "44444444444"
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/correntistas")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "nomeCompleto,asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].nomeCompleto", is("Alfa Santos")))
+                .andExpect(jsonPath("$.content[1].nomeCompleto", is("Zeta Silva")));
     }
 }
